@@ -1,38 +1,51 @@
 # ==============================================================================
-# ESTAPA DE CONSTRUCCIÓN Y DEPENDENCIAS
+# STAGE 1: DEPENDENCIAS
+# Instala solo las dependencias de producción para mantener la imagen pequeña.
 # ==============================================================================
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
+# Instalar dumb-init para manejo correcto de señales PID 1
+RUN apk add --no-cache dumb-init
+
 COPY package*.json ./
 
-# Instalar todas las dependencias (incluyendo devDependencies para pruebas si fuera el caso)
-RUN npm ci
-
-COPY . .
+# Solo dependencias de producción
+RUN npm ci --omit=dev --ignore-scripts
 
 # ==============================================================================
-# ESTAPA DE EJECUCIÓN (PRODUCCIÓN)
+# STAGE 2: RUNNER (PRODUCCIÓN)
+# Imagen final limpia, mínima y segura.
 # ==============================================================================
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+# Copiar dumb-init desde la etapa anterior
+COPY --from=deps /usr/bin/dumb-init /usr/bin/dumb-init
+
+# Variables de entorno de producción
 ENV NODE_ENV=production
+ENV PORT=3100
 
-COPY package*.json ./
+# Copiar dependencias ya instaladas
+COPY --from=deps /app/node_modules ./node_modules
 
-# Instalar solo dependencias de producción
-RUN npm ci --only=production
+# Copiar el código fuente
+COPY src/ ./src/
+COPY package.json ./
 
-# Copiar el código fuente y archivos necesarios desde el builder
-COPY --from=builder /app/src ./src
+# Exponer el puerto de la API
+EXPOSE 3100
 
-# Exponer el puerto por defecto de la API
-EXPOSE 3000
+# Healthcheck para que Docker/Dokploy sepa si el contenedor está sano
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:3100/api/health || exit 1
 
-# Ejecutar como usuario no privilegiado por seguridad
+# Ejecutar como usuario no privilegiado (seguridad)
 USER node
 
+# dumb-init como PID 1 garantiza el reenvío correcto de señales SIGTERM/SIGINT
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "src/app.js"]
