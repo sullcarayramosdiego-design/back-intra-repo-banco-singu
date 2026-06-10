@@ -1,0 +1,57 @@
+services:
+  # 1. Base de Datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: singular_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: bd_financiera_confianza
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Ejecuta el script de esquema al iniciar la base de datos
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - singular_network
+
+
+  # 3. API REST (Node.js)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: singular_api_service
+    restart: always
+    environment:
+      - PORT=3100
+      - NODE_ENV=development
+      - CORS_ORIGIN=*
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root_password
+      - DB_NAME=bd_financiera_confianza
+      - BYPASS_AUTH=false
+      - USE_DEV_SECRET=true
+      - JWT_DEV_SECRET=super-secret-development-key-for-local-testing
+    ports:
+      - "3100:3100"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - singular_network
+
+volumes:
+  mysql_data:
+
+networks:
+  singular_network:
+    driver: bridge

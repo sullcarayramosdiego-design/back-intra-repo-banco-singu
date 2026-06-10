@@ -1,0 +1,27 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - img [ref=e9]
+    - generic [ref=e12]: Banco Singular
+    - generic [ref=e13]: Intranet de Gestión Financiera Confianza
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - text: Usuario
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - 'textbox "ej: analista.prueba" [ref=e21]'
+      - generic [ref=e22]:
+        - text: Contraseña
+        - generic [ref=e23]:
+          - img [ref=e24]
+          - textbox "••••••••" [ref=e27]
+      - button "Iniciar Sesión" [ref=e28]
+    - generic [ref=e31]: Desarrollo local
+    - generic [ref=e33]:
+      - 'button "Rol: Analista" [ref=e34]':
+        - text: "Rol: Analista"
+        - img
+      - 'button "Rol: Admin" [ref=e35]':
+        - text: "Rol: Admin"
+        - img
+  - paragraph [ref=e37]: © 2026 Banco Singular S.A. Todos los derechos reservados.
