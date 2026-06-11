@@ -36,8 +36,4 @@ function errorResponse(message, code = 'INTERNAL_ERROR', details = null) {
   };
 }
 
-module.exports = {
-  toDecimal,
-  successResponse,
-  errorResponse
-};
+module.exports = { toDecimal, successResponse, errorResponse };

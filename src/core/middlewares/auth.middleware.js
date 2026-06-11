@@ -4,6 +4,9 @@ const idpConfig = require('../config/idp');
 
 /**
  * Middleware para validar el JWT
+ * - BYPASS_AUTH=true     → inyecta usuario mock, sin validación
+ * - USE_DEV_SECRET=true  → valida con HS256 + JWT_DEV_SECRET (desarrollo local)
+ * - default              → valida con RS256 via JWKS (producción)
  */
 let authMiddleware;
 
@@ -23,7 +26,7 @@ if (process.env.BYPASS_AUTH === 'true') {
   const devAudience = process.env.JWT_AUDIENCE || 'account';
   const devIssuer = process.env.JWT_ISSUER || 'https://keycloak.dsr124.xyz/realms/banco-singular';
 
-  console.log(`[Auth] Modo Desarrollo Local: Validando JWT (HS256) usando JWT_DEV_SECRET`);
+  console.log('[Auth] Modo Desarrollo Local: Validando JWT (HS256) usando JWT_DEV_SECRET');
   authMiddleware = jwt({
     secret: devSecret,
     audience: devAudience,
@@ -52,4 +55,3 @@ if (process.env.BYPASS_AUTH === 'true') {
 }
 
 module.exports = authMiddleware;
-

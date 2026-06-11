@@ -1,36 +1,9 @@
-const db = require('../config/database');
+const db = require('../../core/config/database');
 
-/**
- * Servicio encargado de realizar las consultas analíticas del Star Schema
- * adaptadas al dataset real.
- */
-class KpiService {
-  
-  /**
-   * Obtiene la cartera activa (saldos y cantidades de cuentas por producto, región y zona).
-   */
-  async getCarteraActiva() {
-    const sql = `
-      SELECT 
-        dp.producto_id,
-        dp.nombre_producto,
-        dp.tipo_producto,
-        de.zona,
-        de.region,
-        SUM(fpc.saldo) AS saldo_total,
-        SUM(ABS(fpc.saldo)) AS saldo_absoluto,
-        COUNT(DISTINCT fpc.cuenta_id) AS total_cuentas
-      FROM fact_posicion_cartera fpc
-      JOIN dim_productos dp ON fpc.producto_id = dp.producto_id
-      JOIN dim_ejecutivos de ON fpc.ejecutivo_id = de.ejecutivo_id
-      GROUP BY dp.producto_id, dp.nombre_producto, dp.tipo_producto, de.zona, de.region
-      ORDER BY de.zona, de.region, saldo_absoluto DESC;
-    `;
-    return await db.query(sql);
-  }
+class TransaccionesService {
 
   /**
-   * Obtiene la actividad transaccional agrupada por periodo (año-mes), canal y tipo de movimiento.
+   * Actividad transaccional simple: agrupada por periodo, canal y tipo de movimiento.
    */
   async getActividadTransaccional() {
     const sql = `
@@ -48,75 +21,55 @@ class KpiService {
   }
 
   /**
-   * Obtiene el desempeño de los ejecutivos en base a las cuentas y saldos asignados actualmente.
+   * Actividad transaccional filtrada con catálogos de valores únicos.
    */
-  async getDesempenioEjecutivos() {
+  async getActividadTransaccionalFiltrada({ canal, sucursal, tipo, periodo } = {}) {
+    let whereClauses = [];
+    let params = [];
+
+    if (canal) { whereClauses.push('ft.canal = ?'); params.push(canal); }
+    if (sucursal) { whereClauses.push('de.sucursal_nombre = ?'); params.push(sucursal); }
+    if (tipo) { whereClauses.push('ft.tipo_movimiento = ?'); params.push(tipo); }
+    if (periodo) { whereClauses.push("DATE_FORMAT(ft.fecha_transaccion, '%Y-%m') = ?"); params.push(periodo); }
+
+    const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
     const sql = `
       SELECT 
-        de.ejecutivo_id,
-        de.nombre_ejecutivo,
-        de.zona,
-        de.region,
-        de.sucursal_nombre,
-        SUM(fpc.saldo) AS saldo_total_gestionado,
-        SUM(ABS(fpc.saldo)) AS saldo_absoluto_gestionado,
-        COUNT(DISTINCT fpc.cuenta_id) AS total_cuentas_gestionadas,
-        ROUND(AVG(ABS(fpc.saldo)), 2) AS saldo_promedio_cuenta
-      FROM fact_posicion_cartera fpc
-      JOIN dim_ejecutivos de ON fpc.ejecutivo_id = de.ejecutivo_id
-      GROUP BY de.ejecutivo_id, de.nombre_ejecutivo, de.zona, de.region, de.sucursal_nombre
-      ORDER BY saldo_absoluto_gestionado DESC;
+        DATE_FORMAT(ft.fecha_transaccion, '%Y-%m') AS periodo,
+        ft.canal,
+        ft.tipo_movimiento,
+        COUNT(ft.transaccion_id) AS cantidad_transacciones,
+        SUM(ft.monto) AS monto_total
+      FROM fact_transacciones ft
+      LEFT JOIN dim_ejecutivos de ON ft.ejecutivo_id = de.ejecutivo_id
+      ${whereStr}
+      GROUP BY periodo, ft.canal, ft.tipo_movimiento
+      ORDER BY periodo DESC, cantidad_transacciones DESC;
     `;
-    return await db.query(sql);
+
+    const [rows] = await db.pool.query(sql, params);
+
+    // Catálogos completos (sin filtros aplicados)
+    const [canalesRows] = await db.pool.query('SELECT DISTINCT canal FROM fact_transacciones WHERE canal IS NOT NULL ORDER BY canal');
+    const [periodosRows] = await db.pool.query("SELECT DISTINCT DATE_FORMAT(fecha_transaccion, '%Y-%m') AS periodo FROM fact_transacciones ORDER BY periodo DESC");
+    const [sucursalesRows] = await db.pool.query('SELECT DISTINCT sucursal_nombre FROM dim_ejecutivos WHERE sucursal_nombre IS NOT NULL ORDER BY sucursal_nombre');
+    const [tiposRows] = await db.pool.query('SELECT DISTINCT tipo_movimiento FROM fact_transacciones WHERE tipo_movimiento IS NOT NULL ORDER BY tipo_movimiento');
+
+    return {
+      items: rows,
+      canales: canalesRows.map(r => r.canal),
+      periodos: periodosRows.map(r => r.periodo),
+      sucursales: sucursalesRows.map(r => r.sucursal_nombre),
+      tipos: tiposRows.map(r => r.tipo_movimiento)
+    };
   }
 
   /**
-   * Obtiene la distribución y composición de clientes por tipo (persona natural/jurídica) y segmento.
+   * Resumen consolidado de KPIs del Dashboard con filtros opcionales.
    */
-  async getComposicionClientes() {
-    const sql = `
-      SELECT 
-        tipo_persona,
-        segmento,
-        COUNT(cliente_id) AS cantidad_clientes
-      FROM dim_clientes
-      GROUP BY tipo_persona, segmento
-      ORDER BY cantidad_clientes DESC;
-    `;
-    return await db.query(sql);
-  }
-
-  /**
-   * Obtiene el mapa de riesgo crediticio para productos activos (préstamos/créditos)
-   * agrupado por zona, región y clasificación de riesgo del último corte.
-   */
-  async getMapaRiesgoCrediticio() {
-    const sql = `
-      SELECT 
-        de.zona,
-        de.region,
-        fpc.clasificacion_cartera,
-        SUM(ABS(fpc.saldo)) AS saldo_riesgo,
-        COUNT(DISTINCT fpc.cuenta_id) AS cantidad_cuentas
-      FROM fact_posicion_cartera fpc
-      JOIN dim_productos dp ON fpc.producto_id = dp.producto_id
-      JOIN dim_ejecutivos de ON fpc.ejecutivo_id = de.ejecutivo_id
-      WHERE dp.tipo_producto IN ('CREDITO_PERSONAL', 'TARJETA_CREDITO', 'HIPOTECARIO', 'CREDITO_AUTO', 'CREDITO_PYME')
-        AND fpc.clasificacion_cartera IS NOT NULL
-      GROUP BY de.zona, de.region, fpc.clasificacion_cartera
-      ORDER BY de.zona, de.region, 
-        FIELD(fpc.clasificacion_cartera, 'NORMAL', 'CPP', 'DEFICIENTE', 'DUDOSO', 'PERDIDA');
-    `;
-    return await db.query(sql);
-  }
-
-  /**
-   * Obtiene un resumen consolidado de KPIs clave para mostrar tarjetas generales en el Dashboard.
-   */
-  async getResumenDashboard(filters = {}) {
-    const { region, segmento, producto } = filters;
-
-    // Si no hay filtros aplicados, realizamos las consultas rápidas originales sin JOINS
+  async getResumenDashboard({ region, segmento, producto } = {}) {
+    // Sin filtros: consultas simples y rápidas
     if (!region && !segmento && !producto) {
       const summarySql = `
         SELECT 
@@ -138,22 +91,13 @@ class KpiService {
       };
     }
 
-    // Construir filtros dinámicos con placeholders
+    // Con filtros: consultas dinámicas con JOINs
     let whereClauses = [];
     let params = [];
 
-    if (region) {
-      whereClauses.push('de.region = ?');
-      params.push(region);
-    }
-    if (segmento) {
-      whereClauses.push('dc.segmento = ?');
-      params.push(segmento);
-    }
-    if (producto) {
-      whereClauses.push('dp.tipo_producto = ?');
-      params.push(producto);
-    }
+    if (region) { whereClauses.push('de.region = ?'); params.push(region); }
+    if (segmento) { whereClauses.push('dc.segmento = ?'); params.push(segmento); }
+    if (producto) { whereClauses.push('dp.tipo_producto = ?'); params.push(producto); }
 
     const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
@@ -165,7 +109,6 @@ class KpiService {
       LEFT JOIN dim_productos dp ON fpc.producto_id = dp.producto_id
       ${whereStr}
     `;
-
     const cuentasSql = `
       SELECT COUNT(DISTINCT dcu.cuenta_id) AS count
       FROM dim_cuentas dcu
@@ -175,7 +118,6 @@ class KpiService {
       LEFT JOIN dim_clientes dc ON dcu.cliente_id = dc.cliente_id
       WHERE dcu.estatus = 'ACTIVA' ${whereClauses.length > 0 ? 'AND ' + whereClauses.join(' AND ') : ''}
     `;
-
     const saldoSql = `
       SELECT 
         SUM(ABS(fpc.saldo)) AS count,
@@ -187,7 +129,6 @@ class KpiService {
       LEFT JOIN dim_clientes dc ON fpc.cliente_id = dc.cliente_id
       ${whereStr}
     `;
-
     const transaccionesSql = `
       SELECT COUNT(DISTINCT ft.transaccion_id) AS count
       FROM fact_transacciones ft
@@ -214,4 +155,4 @@ class KpiService {
   }
 }
 
-module.exports = new KpiService();
+module.exports = new TransaccionesService();

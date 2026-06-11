@@ -2,10 +2,14 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const routes = require('./routes');
-const errorMiddleware = require('./middlewares/error.middleware');
+const routes = require('./core/routes');
+const errorMiddleware = require('./core/middlewares/error.middleware');
+const requestLogger  = require('./core/middlewares/request-logger.middleware');
 
 const app = express();
+
+// Logger de peticiones HTTP (debe ser el primero en la cadena)
+app.use(requestLogger);
 
 // Middlewares globales
 app.use(cors({

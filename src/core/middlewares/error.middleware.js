@@ -16,8 +16,8 @@ function errorMiddleware(err, req, res, next) {
   console.error('[Error Middleware]', err);
 
   const statusCode = err.status || 500;
-  const message = process.env.NODE_ENV === 'production' 
-    ? 'Ocurrió un error interno en el servidor.' 
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Ocurrió un error interno en el servidor.'
     : err.message || 'Error interno.';
 
   res.status(statusCode).json({

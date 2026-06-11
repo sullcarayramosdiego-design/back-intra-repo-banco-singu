@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const db = require('../config/database');
-const { successResponse } = require('../utils/formatter');
+const db = require('../../core/config/database');
+const { successResponse } = require('../../core/utils/formatter');
 
 class AuthController {
   /**
@@ -33,20 +33,15 @@ class AuthController {
           sub: `mock-ejecutivo-${ejecutivo.ejecutivo_id}`,
           name: ejecutivo.nombre_ejecutivo,
           email: `${username.toLowerCase().replace(/\s+/g, '.')}@confianza.pe`,
-          realm_access: {
-            roles: ['admin', 'ejecutivo']
-          }
+          realm_access: { roles: ['admin', 'ejecutivo'] }
         };
       } else {
         console.log(`[Auth-Mock] No se encontró ejecutivo. Usando datos ingresados con perfil mock por defecto.`);
-        // Si no se encuentra, usamos los datos provistos y un ID genérico
         userPayload = {
           sub: 'mock-ejecutivo-default',
           name: username,
           email: `${username.toLowerCase().replace(/\s+/g, '.')}@confianza.pe`,
-          realm_access: {
-            roles: ['admin', 'ejecutivo']
-          }
+          realm_access: { roles: ['admin', 'ejecutivo'] }
         };
       }
 
