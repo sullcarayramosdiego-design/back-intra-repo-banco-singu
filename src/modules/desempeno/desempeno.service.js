@@ -70,10 +70,11 @@ class DesempenoService {
    * Agrupación por zona: totales de transacciones y montos.
    * Usado para: gráfico dona / barras agrupadas por zona.
    */
-  async getTransaccionesPorZona({ canal, region, ejecutivo_id } = {}) {
+  async getTransaccionesPorZona({ zona, canal, region, ejecutivo_id } = {}) {
     const whereClauses = [];
     const params = [];
 
+    if (zona)   { whereClauses.push('de.zona = ?');   params.push(zona); }
     if (region) { whereClauses.push('de.region = ?'); params.push(region); }
     if (canal)  { whereClauses.push('ft.canal = ?');  params.push(canal); }
     if (ejecutivo_id) { whereClauses.push('de.ejecutivo_id = ?'); params.push(ejecutivo_id); }

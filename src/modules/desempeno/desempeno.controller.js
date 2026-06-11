@@ -60,8 +60,8 @@ class DesempenoController {
   /** GET /api/reportes/desempeno/por-zona — agrupado por zona */
   async getPorZona(req, res, next) {
     try {
-      const { canal, region, ejecutivo_id } = req.query;
-      const rows = await desempenoService.getTransaccionesPorZona({ canal, region, ejecutivo_id });
+      const { zona, canal, region, ejecutivo_id } = req.query;
+      const rows = await desempenoService.getTransaccionesPorZona({ zona, canal, region, ejecutivo_id });
       const formattedData = rows.map(row => ({
         zona:                   row.zona,
         region:                 row.region,
