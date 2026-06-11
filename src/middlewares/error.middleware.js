@@ -4,6 +4,7 @@
 function errorMiddleware(err, req, res, next) {
   // Manejo de error de JWT
   if (err.name === 'UnauthorizedError') {
+    console.error('[Error Middleware - JWT Validation Failure]:', err.message, err.inner);
     return res.status(401).json({
       status: 'error',
       code: 'UNAUTHORIZED',
