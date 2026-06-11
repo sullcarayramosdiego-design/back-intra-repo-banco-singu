@@ -1,0 +1,2531 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Ejecutiva - Banco Singular</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* 1. DISENO Y COLORES GENERALES (TEMA OSCURO PREMIUM) */
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(22, 28, 45, 0.7);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --secondary: #06b6d4;
+            --secondary-glow: rgba(6, 182, 212, 0.4);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.4);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --text-title: #f8fafc;
+            --text-body: #94a3b8;
+            --text-highlight: #60a5fa;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            background-image:
+                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(6, 182, 212, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.003) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.003) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        /* 2. GRID LAYOUT & SIDEBAR */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Sidebar colapsable */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(15, 23, 42, 0.95);
+            border-right: 1px solid var(--border-card);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        .sidebar.collapsed {
+            margin-left: calc(-1 * var(--sidebar-width));
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-card);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header i {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .sidebar-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-title);
+        }
+
+        .sidebar-menu {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px 10px;
+            list-style: none;
+        }
+
+        .sidebar-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-body);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-title);
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.05));
+            border-left: 3px solid var(--primary);
+            color: var(--primary-glow);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border-card);
+            font-size: 11px;
+            text-align: center;
+            color: #475569;
+        }
+
+        /* Botón de alternancia del sidebar */
+        .sidebar-toggle {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-toggle:hover {
+            color: var(--text-title);
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        /* 3. SLIDES VIEWER AREA */
+        .viewer-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+            height: 100vh;
+        }
+
+        .slide-frame {
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            max-height: 680px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Slide Container */
+        .slide-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            padding: 45px 55px;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(12px);
+        }
+
+        .slide-container.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Slide header/footer bar */
+        .slide-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 0 0 16px 16px;
+        }
+
+        /* 4. TYPOGRAPHY & UI COMPONENTS */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            color: var(--text-title);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 54px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 30%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .slide-title {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-title);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .slide-title i {
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-body);
+            line-height: 1.6;
+        }
+
+        p {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        code {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-highlight);
+        }
+
+        /* Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+        }
+
+        .flex-grow-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* Cards & Tiles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .glass-card h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .glass-card h3 i {
+            color: var(--secondary);
+        }
+
+        .image-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            height: 300px;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom Slide 2 Interactive Card Hover Effects & Tab Styles */
+        .slide2-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide2-card.card-reto:hover {
+            background: rgba(239, 68, 68, 0.05) !important;
+            border-color: rgba(239, 68, 68, 0.25) !important;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05);
+        }
+
+        .slide2-card.card-objetivo:hover {
+            background: rgba(59, 130, 246, 0.05) !important;
+            border-color: rgba(59, 130, 246, 0.25) !important;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.05);
+        }
+
+        .slide2-tab-content {
+            transition: opacity 0.3s ease;
+        }
+
+        .slide2-tab-btn {
+            outline: none;
+        }
+
+        .slide2-tab-btn:hover:not(.active) {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Custom Slide 4 Interactive Decision Button Styles */
+        .slide4-dec-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide4-dec-btn.active {
+            background: rgba(59, 130, 246, 0.08) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        }
+
+        .slide4-dec-btn.active .dec-icon {
+            background: rgba(59, 130, 246, 0.2) !important;
+            color: var(--primary) !important;
+        }
+
+        .slide4-dec-btn.active span {
+            color: #fff !important;
+        }
+
+        .slide4-dec-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Lists */
+        ul.styled-list {
+            list-style: none;
+        }
+
+        ul.styled-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        ul.styled-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        /* 5. DYNAMIC SIMULATORS & INTERACTIVITY */
+        .btn-sim {
+            background: var(--primary);
+            border: none;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-sim:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-sim.sec {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .btn-sim.sec:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+        }
+
+        .sim-console {
+            background: #020617;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            color: #38bdf8;
+            height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .console-line {
+            line-height: 1.4;
+        }
+
+        .console-line.success {
+            color: var(--success);
+        }
+
+        .console-line.warn {
+            color: var(--warning);
+        }
+
+        .console-line.error {
+            color: var(--danger);
+        }
+
+        /* Stepper Visual Interactivo para ETL */
+        .etl-step {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            opacity: 0.45;
+            transition: all 0.3s ease;
+        }
+
+        .etl-step.active {
+            opacity: 1 !important;
+        }
+
+        .etl-step.active .step-icon {
+            background: rgba(59, 130, 246, 0.2) !important;
+            border-color: var(--primary) !important;
+            color: #fff !important;
+            box-shadow: 0 0 12px var(--primary-glow);
+            transform: scale(1.08);
+        }
+
+        .etl-step.active .step-title {
+            color: #fff !important;
+        }
+
+        .etl-step.completed {
+            opacity: 1 !important;
+        }
+
+        .etl-step.completed .step-icon {
+            background: rgba(16, 185, 129, 0.15) !important;
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+            box-shadow: 0 0 12px var(--success-glow);
+        }
+
+        .etl-step.completed .step-title {
+            color: var(--success) !important;
+        }
+
+        /* KPI Interactive Buttons */
+        .kpi-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .kpi-btn.active {
+            background: rgba(59, 130, 246, 0.08) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        }
+
+        .kpi-btn.active .kpi-icon {
+            background: rgba(59, 130, 246, 0.2) !important;
+            color: var(--primary) !important;
+        }
+
+        .kpi-btn.active span {
+            color: #fff !important;
+        }
+
+        .kpi-btn.active div:last-child {
+            color: var(--primary) !important;
+        }
+
+        .kpi-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            transform: translateY(-1px);
+        }
+
+        /* SVG Architecture Styles */
+        .diagram-container {
+            width: 100%;
+            height: 420px;
+            position: relative;
+            background: rgba(2, 6, 23, 0.45);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .node-box {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 8px;
+            width: 110px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s;
+            z-index: 5;
+        }
+
+        .node-box.glow {
+            box-shadow: 0 0 15px var(--primary-glow);
+            border-color: #60a5fa;
+        }
+
+        .node-box.redis-node {
+            border-color: var(--danger);
+        }
+
+        .node-box.redis-node.glow {
+            box-shadow: 0 0 15px var(--danger-glow);
+            border-color: #f87171;
+        }
+
+        .node-box.db-node {
+            border-color: var(--secondary);
+        }
+
+        .node-box.db-node.glow {
+            box-shadow: 0 0 15px var(--secondary-glow);
+            border-color: #22d3ee;
+        }
+
+        .node-box.auth-node {
+            border-color: var(--success);
+        }
+
+        .node-box.auth-node.glow {
+            box-shadow: 0 0 15px var(--success-glow);
+            border-color: #34d399;
+        }
+
+        .node-box.net-node {
+            border-color: var(--warning);
+        }
+
+        .node-box.net-node.glow {
+            box-shadow: 0 0 15px var(--warning-glow);
+            border-color: #fbbf24;
+        }
+
+        .node-box.dev-node {
+            border-color: #a855f7;
+        }
+
+        .node-box.dev-node.glow {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            border-color: #c084fc;
+        }
+
+        .node-box i {
+            font-size: 16px;
+            margin-bottom: 4px;
+            display: block;
+            color: var(--primary);
+        }
+
+        .node-box.redis-node i {
+            color: var(--danger);
+        }
+
+        .node-box.db-node i {
+            color: var(--secondary);
+        }
+
+        .node-box.auth-node i {
+            color: var(--success);
+        }
+
+        .node-box.net-node i {
+            color: var(--warning);
+        }
+
+        .node-box.dev-node i {
+            color: #c084fc;
+        }
+
+        .location-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 8px;
+            display: block;
+            margin-top: 4px;
+            color: #64748b;
+        }
+
+        .dokploy-boundary {
+            position: absolute;
+            border: 2px dashed rgba(59, 130, 246, 0.25);
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.02);
+            z-index: 6;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .dokploy-boundary.glow {
+            border-color: rgba(59, 130, 246, 0.7) !important;
+            background: rgba(59, 130, 246, 0.04) !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        #procedimientosBoundary.glow {
+            border-color: rgba(168, 85, 247, 0.7) !important;
+            background: rgba(168, 85, 247, 0.04) !important;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+        }
+
+        #vpsBoundary {
+            border-style: solid !important;
+            border-color: rgba(59, 130, 246, 0.35) !important;
+            background: rgba(59, 130, 246, 0.01) !important;
+        }
+
+        #vpsBoundary.glow {
+            border-color: rgba(59, 130, 246, 0.7) !important;
+            background: rgba(59, 130, 246, 0.03) !important;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .boundary-label {
+            position: absolute;
+            top: 6px;
+            left: 10px;
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: rgba(59, 130, 246, 0.6);
+            letter-spacing: 0.05em;
+        }
+
+        /* Animating particle */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #fff;
+            z-index: 7;
+            display: none;
+        }
+
+        .particle.fast {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+
+        .particle.slow {
+            background: var(--warning);
+            box-shadow: 0 0 10px var(--warning-glow);
+        }
+
+        /* 7. BOTTOM CONTROLS & PRINT STYLES */
+        .controls-bar {
+            position: fixed;
+            bottom: 25px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            user-select: none;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-body);
+            font-size: 16px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .control-btn:disabled {
+            color: #334155;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        .slide-indicator {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            z-index: 9999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            position: fixed;
+            top: 20px;
+            right: 40px;
+            display: flex;
+            gap: 8px;
+            z-index: 999;
+        }
+
+        .mode-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .mode-btn:hover,
+        .mode-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 10px var(--primary-glow);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Print Media Override */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #1e293b !important;
+                display: block !important;
+                overflow: visible !important;
+                height: auto !important;
+                width: auto !important;
+            }
+
+            .sidebar,
+            .sidebar-toggle,
+            .controls-bar,
+            .progress-bar-container,
+            .mode-selector,
+            .btn-sim,
+            .sim-console {
+                display: none !important;
+            }
+
+            .viewer-container {
+                padding: 0 !important;
+                height: auto !important;
+                display: block !important;
+            }
+
+            .slide-frame {
+                max-width: 100% !important;
+                max-height: none !important;
+                height: auto !important;
+                display: block !important;
+            }
+
+            .slide-container {
+                position: relative !important;
+                display: flex !important;
+                opacity: 1 !important;
+                transform: none !important;
+                background: #ffffff !important;
+                border: none !important;
+                border-bottom: 2px solid #e2e8f0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                margin-bottom: 40px !important;
+                height: 100vh !important;
+                page-break-after: always !important;
+                color: #1e293b !important;
+                padding: 40px !important;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            strong,
+            code {
+                color: #0f172a !important;
+                -webkit-text-fill-color: initial !important;
+                background: none !important;
+            }
+
+            .glass-card {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #1e293b !important;
+            }
+
+            .diagram-container {
+                background: #f1f5f9 !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            .node-box {
+                background: #ffffff !important;
+                border-color: #94a3b8 !important;
+                color: #0f172a !important;
+                box-shadow: none !important;
+            }
+
+            .node-box i {
+                color: #475569 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="mode-selector">
+        <button class="mode-btn" id="btnFullscreen"><i class="fa-solid fa-expand"></i> Presentar</button>
+    </div>
+
+    <div class="app-container">
+
+        <!-- Slides Area -->
+        <main class="viewer-container">
+            <div class="slide-frame">
+
+                <!-- Diapositiva 1: Portada -->
+                <div class="slide-container active" id="slide1" data-title="Portada" style="padding: 40px 60px;">
+                    <div class="flex-grow-content">
+                        <div class="grid-2" style="align-items: center; gap: 50px;">
+                            <div style="display: flex; flex-direction: column; text-align: left;">
+                                <span
+                                    style="color: var(--primary); font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; font-size: 11px; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-gem" style="font-size: 10px;"></i> Banco Singular
+                                </span>
+                                <h1
+                                    style="font-size: 48px; margin-bottom: 15px; font-weight: 800; text-align: left; background: linear-gradient(135deg, #fff 40%, #93c5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 0; line-height: 1.15;">
+                                    Presentación<br>Ejecutiva
+                                </h1>
+                                <p
+                                    style="font-size: 20px; color: var(--secondary); font-weight: 600; margin-bottom: 35px;">
+                                    Arquitectura de Datos e Integración Full-Stack
+                                </p>
+
+                                <div
+                                    style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: #64748b;">
+                                    <span>Área de Arquitectura de Datos</span>
+                                    <span>•</span>
+                                    <span>Dokploy VPS</span>
+                                </div>
+                            </div>
+
+                            <!-- Hero graphic wrapper -->
+                            <div class="image-wrapper"
+                                style="height: 380px; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45); background: rgba(15, 23, 42, 0.5);">
+                                <img src="fintech_hero.png" alt="Fintech Architecture Hero"
+                                    style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;">
+                                <div
+                                    style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(11, 15, 25, 0.45), transparent); pointer-events: none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 2: Contexto y Objetivos -->
+                <div class="slide-container" id="slide2" data-title="Contexto y Objetivos" style="padding: 40px 60px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px;">
+                        <h2 class="slide-title" style="margin: 0; border: none; padding: 0;"><i
+                                class="fa-solid fa-bullseye"></i> Contexto y Objetivos</h2>
+
+                        <!-- Conmutador de Pestañas Dinámico -->
+                        <div
+                            style="display: inline-flex; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px; border-radius: 30px;">
+                            <button class="slide2-tab-btn active" id="tabBtnRetos" onclick="switchSlide2Tab('retos')"
+                                style="background: var(--primary); color: #fff; border: none; padding: 8px 18px; font-size: 11px; font-weight: 700; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; box-shadow: 0 4px 12px var(--primary-glow); font-family: 'Plus Jakarta Sans', sans-serif;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Retos Operativos
+                            </button>
+                            <button class="slide2-tab-btn" id="tabBtnObjetivos" onclick="switchSlide2Tab('objetivos')"
+                                style="background: transparent; color: var(--text-body); border: none; padding: 8px 18px; font-size: 11px; font-weight: 700; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                <i class="fa-solid fa-bullseye"></i> Objetivos Estratégicos
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow-content" style="justify-content: center;">
+                        <!-- PESTAÑA: RETOS -->
+                        <div id="slide2ContentRetos" class="slide2-tab-content"
+                            style="display: flex; gap: 40px; align-items: center; opacity: 1; transition: opacity 0.3s ease;">
+                            <div class="grid-2" style="align-items: center; gap: 40px; width: 100%;">
+                                <!-- Columna Izquierda: Retos -->
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div>
+                                        <h3
+                                            style="color: #f8fafc; font-size: 18px; margin-bottom: 6px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                            <span style="color: var(--danger);"><i
+                                                    class="fa-solid fa-circle-exclamation"></i></span> El Escenario de
+                                            Partida
+                                        </h3>
+                                        <p
+                                            style="font-size: 13px; line-height: 1.5; color: var(--text-body); margin: 0;">
+                                            Banco Singular carece de un sistema de reportes y de acceso directo a su
+                                            core transaccional. La consolidación de carteras comerciales y ejecutivos
+                                            depende de procesos manuales basados en archivos CSV estáticos periódicos.
+                                        </p>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                                        <!-- Reto 1 -->
+                                        <div class="slide2-card card-reto"
+                                            style="display: flex; gap: 15px; background: rgba(239, 68, 68, 0.02); border: 1px solid rgba(239, 68, 68, 0.1); padding: 10px 14px; border-radius: 8px; align-items: center;">
+                                            <div
+                                                style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--danger); shrink: 0;">
+                                                <i class="fa-solid fa-chart-line" style="font-size: 14px;"></i>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 700; color: #f8fafc;">Inexistencia
+                                                        de Reportes</span>
+                                                    <span
+                                                        style="font-size: 8px; font-weight: 800; background: rgba(239, 68, 68, 0.15); color: #fca5a5; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.2); text-transform: uppercase; letter-spacing: 0.05em;">Riesgo
+                                                        Alto</span>
+                                                </div>
+                                                <span style="font-size: 11px; color: #94a3b8; margin-top: 1px;">No
+                                                    existe una plataforma de visualización directiva. Las carteras se
+                                                    analizan en hojas Excel locales.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reto 2 -->
+                                        <div class="slide2-card card-reto"
+                                            style="display: flex; gap: 15px; background: rgba(245, 158, 11, 0.02); border: 1px solid rgba(245, 158, 11, 0.1); padding: 10px 14px; border-radius: 8px; align-items: center;">
+                                            <div
+                                                style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--warning); shrink: 0;">
+                                                <i class="fa-solid fa-database" style="font-size: 14px;"></i>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 700; color: #f8fafc;">Core
+                                                        Aislado y CSVs Estáticos</span>
+                                                    <span
+                                                        style="font-size: 8px; font-weight: 800; background: rgba(245, 158, 11, 0.15); color: #fde047; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.2); text-transform: uppercase; letter-spacing: 0.05em;">Sin
+                                                        Ingesta Automática</span>
+                                                </div>
+                                                <span style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Los
+                                                    datos del core operativo quedan confinados; la integración depende
+                                                    de exportaciones CSV periódicas.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reto 3 -->
+                                        <div class="slide2-card card-reto"
+                                            style="display: flex; gap: 15px; background: rgba(239, 68, 68, 0.02); border: 1px solid rgba(239, 68, 68, 0.1); padding: 10px 14px; border-radius: 8px; align-items: center;">
+                                            <div
+                                                style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--danger); shrink: 0;">
+                                                <i class="fa-solid fa-triangle-exclamation"
+                                                    style="font-size: 14px;"></i>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 700; color: #f8fafc;">Falta
+                                                        de Gobierno e Integridad</span>
+                                                    <span
+                                                        style="font-size: 8px; font-weight: 800; background: rgba(239, 68, 68, 0.15); color: #fca5a5; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.2); text-transform: uppercase; letter-spacing: 0.05em;">Vulnerabilidad</span>
+                                                </div>
+                                                <span
+                                                    style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Inexistencia
+                                                    de validación cruzada sobre datos huérfanos y falta de control de
+                                                    accesos centralizado.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Columna Derecha: Ilustración de Retos -->
+                                <div class="image-wrapper"
+                                    style="height: 350px; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid rgba(239, 68, 68, 0.25); box-shadow: 0 15px 35px rgba(239, 68, 68, 0.1); background: rgba(15, 23, 42, 0.6);">
+                                    <img src="legacy_challenges.png" alt="Fintech Legacy Challenges"
+                                        style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7; filter: grayscale(0.2) sepia(0.1) hue-rotate(-30deg);">
+                                    <div
+                                        style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(11, 15, 25, 0.6), transparent); pointer-events: none;">
+                                    </div>
+                                    <div
+                                        style="position: absolute; bottom: 12px; left: 15px; font-size: 10px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.65); padding: 4px 10px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08);">
+                                        <i class="fa-solid fa-circle-exclamation" style="color:var(--danger);"></i> Sin
+                                        Sistema de Reportes Directivo
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PESTAÑA: OBJETIVOS -->
+                        <div id="slide2ContentObjetivos" class="slide2-tab-content"
+                            style="display: none; gap: 40px; align-items: center; opacity: 0; transition: opacity 0.3s ease;">
+                            <div class="grid-2" style="align-items: center; gap: 40px; width: 100%;">
+                                <!-- Columna Izquierda: Objetivos -->
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div>
+                                        <h3
+                                            style="color: #f8fafc; font-size: 18px; margin-bottom: 6px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                            <span style="color: var(--success);"><i
+                                                    class="fa-solid fa-circle-check"></i></span> Arquitectura Target
+                                            Solvente
+                                        </h3>
+                                        <p
+                                            style="font-size: 13px; line-height: 1.5; color: var(--text-body); margin: 0;">
+                                            Diseñar y desplegar un pipeline de datos automatizado extremo a extremo
+                                            (ETL), un almacén de datos (MySQL) estructurado y un dashboard gerencial
+                                            interactivo de alto rendimiento.
+                                        </p>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                                        <!-- Objetivo 1 -->
+                                        <div class="slide2-card card-objetivo"
+                                            style="display: flex; gap: 15px; background: rgba(59, 130, 246, 0.02); border: 1px solid rgba(59, 130, 246, 0.1); padding: 10px 14px; border-radius: 8px; align-items: center;">
+                                            <div
+                                                style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--primary); shrink: 0;">
+                                                <i class="fa-solid fa-square-check" style="font-size: 14px;"></i>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 700; color: #f8fafc;">Pipeline
+                                                        y Modelo Estructurado</span>
+                                                    <span
+                                                        style="font-size: 8px; font-weight: 800; background: rgba(59, 130, 246, 0.15); color: #93c5fd; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase; letter-spacing: 0.05em;">Python
+                                                        ETL & MySQL</span>
+                                                </div>
+                                                <span
+                                                    style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Procesamiento
+                                                    automático en Pandas, validando integridad referencial antes del
+                                                    commit final.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Objetivo 2 -->
+                                        <div class="slide2-card card-objetivo"
+                                            style="display: flex; gap: 15px; background: rgba(16, 185, 129, 0.02); border: 1px solid rgba(16, 185, 129, 0.1); padding: 10px 14px; border-radius: 8px; align-items: center;">
+                                            <div
+                                                style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--success); shrink: 0;">
+                                                <i class="fa-solid fa-gauge-high" style="font-size: 14px;"></i>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 700; color: #f8fafc;">Visualización
+                                                        Directiva Acelerada</span>
+                                                    <span
+                                                        style="font-size: 8px; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #6ee7b7; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2); text-transform: uppercase; letter-spacing: 0.05em;">Redis
+                                                        local &lt; 15ms</span>
+                                                </div>
+                                                <span style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Tableros
+                                                    interactivos Next.js mitigando latencia física del DWH mediante
+                                                    caché Redis.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Objetivo 3 -->
+                                        <div class="slide2-card card-objetivo"
+                                            style="display: flex; gap: 15px; background: rgba(6, 182, 212, 0.02); border: 1px solid rgba(6, 182, 212, 0.1); padding: 10px 14px; border-radius: 8px; align-items: center;">
+                                            <div
+                                                style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--secondary); shrink: 0;">
+                                                <i class="fa-solid fa-shield-halved" style="font-size: 14px;"></i>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 700; color: #f8fafc;">Acceso
+                                                        Seguro SSO Keycloak</span>
+                                                    <span
+                                                        style="font-size: 8px; font-weight: 800; background: rgba(6, 182, 212, 0.15); color: #67e8f9; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(6, 182, 212, 0.2); text-transform: uppercase; letter-spacing: 0.05em;">OAuth2
+                                                        / OIDC</span>
+                                                </div>
+                                                <span style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Gobierno
+                                                    de identidades centralizado y validación de tokens de seguridad
+                                                    directivos con firmas JWKS.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Columna Derecha: Ilustración de Objetivos -->
+                                <div class="image-wrapper"
+                                    style="height: 350px; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid rgba(16, 185, 129, 0.25); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.1); background: rgba(15, 23, 42, 0.6);">
+                                    <img src="fintech_goals.png" alt="Fintech Architecture Goals"
+                                        style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;">
+                                    <div
+                                        style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(11, 15, 25, 0.5), transparent); pointer-events: none;">
+                                    </div>
+                                    <div
+                                        style="position: absolute; bottom: 12px; left: 15px; font-size: 10px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.65); padding: 4px 10px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08);">
+                                        <i class="fa-solid fa-circle-check" style="color:var(--success);"></i> Pipeline
+                                        y Reportes Consolidados
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 4: Enfoque Arquitectónico -->
+                <div class="slide-container" id="slide4" data-title="Enfoque Arquitectónico"
+                    style="padding: 40px 60px;">
+                    <h2 class="slide-title" style="margin-bottom: 20px;"><i class="fa-solid fa-cubes"></i> Enfoque
+                        Arquitectónico</h2>
+                    <div class="flex-grow-content" style="justify-content: center;">
+                        <div class="grid-2" style="grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: stretch;">
+
+                            <!-- Columna Izquierda: Botones de Decisión (Filtro Interactivo) -->
+                            <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+                                <h3 style="color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 4px;">
+                                    Decisiones de Diseño</h3>
+
+                                <!-- Decisión 1 -->
+                                <button class="slide4-dec-btn active" id="decBtnPython"
+                                    onclick="switchSlide4Decision('python')"
+                                    style="text-align: left; background: rgba(59, 130, 246, 0.08); border: 1px solid var(--primary); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none; font-family: inherit; display: flex; align-items: center; gap: 15px;">
+                                    <div class="dec-icon"
+                                        style="background: rgba(59, 130, 246, 0.15); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 16px; shrink: 0;">
+                                        <i class="fa-brands fa-python"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #fff;">1. Python
+                                            Programático</span>
+                                        <span
+                                            style="font-size: 10.5px; color: var(--text-body); margin-top: 2px;">Frente
+                                            a herramientas ETL propietarias visuales</span>
+                                    </div>
+                                </button>
+
+                                <!-- Decisión 2 -->
+                                <button class="slide4-dec-btn" id="decBtnMicro" onclick="switchSlide4Decision('micro')"
+                                    style="text-align: left; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none; font-family: inherit; display: flex; align-items: center; gap: 15px;">
+                                    <div class="dec-icon"
+                                        style="background: rgba(255, 255, 255, 0.05); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-body); font-size: 16px; shrink: 0;">
+                                        <i class="fa-solid fa-cubes"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">2.
+                                            Microservicios (Dokploy)</span>
+                                        <span
+                                            style="font-size: 10.5px; color: var(--text-body); margin-top: 2px;">Frente
+                                            a despliegues monolíticos únicos</span>
+                                    </div>
+                                </button>
+
+                                <!-- Decisión 3 -->
+                                <button class="slide4-dec-btn" id="decBtnCache" onclick="switchSlide4Decision('cache')"
+                                    style="text-align: left; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none; font-family: inherit; display: flex; align-items: center; gap: 15px;">
+                                    <div class="dec-icon"
+                                        style="background: rgba(255, 255, 255, 0.05); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-body); font-size: 16px; shrink: 0;">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">3. Caché de
+                                            Baja Latencia</span>
+                                        <span
+                                            style="font-size: 10.5px; color: var(--text-body); margin-top: 2px;">Frente
+                                            a consultas directas remotas a Alemania</span>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Columna Derecha: Tarjeta de Explicación Detallada (El Porqué) -->
+                            <div class="glass-card"
+                                style="border: 1px solid rgba(59, 130, 246, 0.15); display: flex; flex-direction: column; justify-content: space-between; padding: 25px; border-radius: 14px; position: relative; overflow: hidden; background: rgba(15, 23, 42, 0.45); height: 100%;">
+                                <!-- Decisión de Fondo / Grid Blueprint Overlay -->
+                                <div
+                                    style="position: absolute; right: -20px; bottom: -20px; width: 180px; height: 180px; opacity: 0.12; pointer-events: none;">
+                                    <img src="architectural_blueprint.png" alt="Blueprint Grid"
+                                        style="width: 100%; height: 100%; object-fit: contain;">
+                                </div>
+
+                                <div id="slide4DetailContent"
+                                    style="opacity: 1; transition: opacity 0.25s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                    <!-- Contenido dinámico inyectado por JS -->
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <span class="badge"
+                                            style="background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.2); align-self: flex-start; text-transform: uppercase; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">Lógica
+                                            Programática</span>
+                                        <h3 id="decTitle"
+                                            style="color: #fff; font-size: 18px; margin: 0; font-weight: 700;">Python
+                                            ETL vs. Herramientas Visuales (Talend/SSIS)</h3>
+                                        <p id="decDescription"
+                                            style="font-size: 12.5px; line-height: 1.5; color: var(--text-body); margin: 0;">
+                                            El uso de <strong>Python (Pandas + SQLAlchemy)</strong> permite un pipeline
+                                            100% programático y versionable en Git. Facilita validaciones en memoria y
+                                            pruebas automatizadas, eliminando la dependencia y los altos costos de
+                                            licencias de herramientas ETL comerciales cerradas.
+                                        </p>
+                                    </div>
+
+                                    <!-- Tabla de Comparativa -->
+                                    <div
+                                        style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 12px 16px; margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                                        <div
+                                            style="display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 6px;">
+                                            <span style="color: #ef4444; font-weight: 700; width: 50%;"><i
+                                                    class="fa-solid fa-circle-xmark"></i> Alternativa Descartada</span>
+                                            <span
+                                                style="color: #10b981; font-weight: 700; width: 50%; padding-left: 10px;"><i
+                                                    class="fa-solid fa-circle-check"></i> Solución Implementada</span>
+                                        </div>
+                                        <div
+                                            style="display: flex; justify-content: space-between; font-size: 11px; line-height: 1.4;">
+                                            <span id="compRejected"
+                                                style="color: #94a3b8; width: 50%; padding-right: 10px;">ETLs visuales
+                                                cerrados, dependientes de licencias propietarias y difíciles de
+                                                versionar.</span>
+                                            <span id="compApproved"
+                                                style="color: #f8fafc; width: 50%; padding-left: 10px; border-left: 1px solid rgba(255, 255, 255, 0.06);">Código
+                                                modular en Git, automatizado y libre de licencias de software.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 5: Stack Tecnológico Elegido -->
+                <div class="slide-container" id="slide5" data-title="Stack Tecnológico">
+                    <h2 class="slide-title"><i class="fa-solid fa-layer-group"></i> Stack Tecnológico Elegido</h2>
+                    <div class="flex-grow-content" style="justify-content: center;">
+                        <div class="grid-3" style="gap: 16px;">
+                            <!-- Python -->
+                            <div class="glass-card text-center" style="text-align: center; padding: 15px 12px;">
+                                <i class="fa-brands fa-python"
+                                    style="font-size:36px; color:var(--primary); margin-bottom:10px; display: inline-block;"></i>
+                                <h3 style="justify-content: center; font-size: 15px; margin-bottom: 6px;">Python ETL
+                                </h3>
+                                <p style="font-size:11.5px; line-height: 1.4; margin: 0; color: var(--text-body);">
+                                    Normalización y validación programática en memoria con Pandas.</p>
+                            </div>
+
+                            <!-- Node.js -->
+                            <div class="glass-card text-center" style="text-align: center; padding: 15px 12px;">
+                                <i class="fa-brands fa-node-js"
+                                    style="font-size:36px; color:var(--success); margin-bottom:10px; display: inline-block;"></i>
+                                <h3 style="justify-content: center; font-size: 15px; margin-bottom: 6px;">Node.js API
+                                </h3>
+                                <p style="font-size:11.5px; line-height: 1.4; margin: 0; color: var(--text-body);">API
+                                    en Express con validación de seguridad JWKS y control de caché.</p>
+                            </div>
+
+                            <!-- Next.js & React -->
+                            <div class="glass-card text-center" style="text-align: center; padding: 15px 12px;">
+                                <i class="fa-brands fa-react"
+                                    style="font-size:36px; color:var(--secondary); margin-bottom:10px; display: inline-block;"></i>
+                                <h3 style="justify-content: center; font-size: 15px; margin-bottom: 6px;">Next.js
+                                    Frontend</h3>
+                                <p style="font-size:11.5px; line-height: 1.4; margin: 0; color: var(--text-body);">
+                                    Dashboard interactivo con gráficos de barra apiladas en Recharts.</p>
+                            </div>
+
+                            <!-- MySQL -->
+                            <div class="glass-card text-center" style="text-align: center; padding: 15px 12px;">
+                                <i class="fa-solid fa-database"
+                                    style="font-size:36px; color:var(--warning); margin-bottom:10px; display: inline-block;"></i>
+                                <h3 style="justify-content: center; font-size: 15px; margin-bottom: 6px;">MySQL DWH</h3>
+                                <p style="font-size:11.5px; line-height: 1.4; margin: 0; color: var(--text-body);">Base
+                                    de datos relacional para el almacenamiento íntegro de carteras.</p>
+                            </div>
+
+                            <!-- Redis -->
+                            <div class="glass-card text-center" style="text-align: center; padding: 15px 12px;">
+                                <i class="fa-solid fa-bolt"
+                                    style="font-size:36px; color:var(--danger); margin-bottom:10px; display: inline-block;"></i>
+                                <h3 style="justify-content: center; font-size: 15px; margin-bottom: 6px;">Redis Cache
+                                </h3>
+                                <p style="font-size:11.5px; line-height: 1.4; margin: 0; color: var(--text-body);">Caché
+                                    en memoria de baja latencia (&lt;15ms) para lecturas optimizadas.</p>
+                            </div>
+
+                            <!-- Dokploy -->
+                            <div class="glass-card text-center" style="text-align: center; padding: 15px 12px;">
+                                <i class="fa-solid fa-server"
+                                    style="font-size:36px; color:#c084fc; margin-bottom:10px; display: inline-block;"></i>
+                                <h3 style="justify-content: center; font-size: 15px; margin-bottom: 6px;">Dokploy VPS
+                                </h3>
+                                <p style="font-size:11.5px; line-height: 1.4; margin: 0; color: var(--text-body);">
+                                    Orquestación y despliegue continuo (CI/CD) automático mediante Docker.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 6: Eficiencia del Pipeline de Datos (Simulador) -->
+                <div class="slide-container" id="slide6" data-title="Pipeline de Datos (ETL)">
+                    <h2 class="slide-title"><i class="fa-solid fa-microchip"></i> Eficiencia del Pipeline de Datos (ETL)
+                    </h2>
+                    <div class="grid-2" style="align-items: stretch; flex-grow: 1;">
+                        <div style="display: flex; flex-direction: column; gap: 20px; justify-content: center;">
+                            <div>
+                                <h3 style="color:#fff; font-size: 18px; margin-bottom: 8px;">Pipeline de Integridad
+                                    Referencial</h3>
+                                <p style="font-size: 13px; margin-bottom: 0; color: var(--text-body);">
+                                    Validación, limpieza y normalización programática de datos en memoria antes de
+                                    persistir en MySQL.
+                                </p>
+                            </div>
+
+                            <!-- Stepper Visual Interactivo -->
+                            <div
+                                style="display: flex; flex-direction: column; gap: 20px; position: relative; padding-left: 10px;">
+                                <!-- Línea conectora vertical de fondo -->
+                                <div
+                                    style="position: absolute; left: 29px; top: 15px; bottom: 15px; width: 2px; background: rgba(255, 255, 255, 0.08); z-index: 1;">
+                                </div>
+                                <!-- Línea de progreso que se llena con JS -->
+                                <div id="etlProgressLine"
+                                    style="position: absolute; left: 29px; top: 15px; height: 0%; width: 2px; background: var(--success); transition: height 0.5s ease; z-index: 2;">
+                                </div>
+
+                                <!-- Paso 1 -->
+                                <div class="etl-step" id="etlStep1">
+                                    <div class="step-icon" id="etlStep1Icon"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 700; font-size: 14px; transition: all 0.3s ease; z-index: 3;">
+                                        1
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span class="step-title"
+                                            style="font-size: 13px; font-weight: 700; color: #94a3b8; transition: color 0.3s ease;">Ingesta
+                                            & Lectura CSV</span>
+                                        <span style="font-size: 11px; color: #64748b;">Carga de transacciones en Pandas
+                                            DataFrame</span>
+                                    </div>
+                                </div>
+
+                                <!-- Paso 2 -->
+                                <div class="etl-step" id="etlStep2">
+                                    <div class="step-icon" id="etlStep2Icon"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 700; font-size: 14px; transition: all 0.3s ease; z-index: 3;">
+                                        2
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span class="step-title"
+                                            style="font-size: 13px; font-weight: 700; color: #94a3b8; transition: color 0.3s ease;">Validación
+                                            y Limpieza</span>
+                                        <span style="font-size: 11px; color: #64748b;">Normalización y cruce de llaves
+                                            en memoria</span>
+                                    </div>
+                                </div>
+
+                                <!-- Paso 3 -->
+                                <div class="etl-step" id="etlStep3">
+                                    <div class="step-icon" id="etlStep3Icon"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 700; font-size: 14px; transition: all 0.3s ease; z-index: 3;">
+                                        3
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span class="step-title"
+                                            style="font-size: 13px; font-weight: 700; color: #94a3b8; transition: color 0.3s ease;">Carga
+                                            MySQL</span>
+                                        <span style="font-size: 11px; color: #64748b;">Bulk insert optimizado de
+                                            registros válidos</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="simulator-box"
+                            style="justify-content: space-between; display: flex; flex-direction: column; gap: 15px; height: 100%;">
+                            <div class="simulator-title"
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; color: #fff; font-size: 14px;">Simulador de Integridad
+                                    ETL</span>
+                                <span class="badge"
+                                    style="background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.2); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Python
+                                    Engine</span>
+                            </div>
+                            <div class="sim-console" id="etlConsole">
+                                <div class="console-line">Esperando ejecución del ETL...</div>
+                            </div>
+                            <button class="btn-sim" id="btnRunEtl" onclick="runEtlSimulation()"
+                                style="width: 100%; justify-content: center; padding: 12px;"><i
+                                    class="fa-solid fa-play"></i> Iniciar Ingesta & Procesamiento</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 3: Flujo de Usuario y Arquitectura Lógica Unificada (GRÁFICO AGRANDADO Y SIN CONSOLA) -->
+                <div class="slide-container" id="slide3" data-title="Flujo y Arquitectura Lógica"
+                    style="padding: 35px 55px;">
+                    <h2 class="slide-title" style="margin-bottom: 15px;"><i class="fa-solid fa-network-wired"></i> Flujo
+                        de Usuario y Arquitectura Lógica Unificada</h2>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 20px;">
+                        <p style="font-size: 13px; margin: 0; line-height: 1.4; max-width: 65%;">
+                            <strong>Estructura en Dokploy (VPS Alemania):</strong> Muestra los dos proyectos orquestados
+                            en el VPS de Dokploy. El proyecto <strong>INTRANET-REPORTES</strong> contiene las capas de
+                            la aplicación (Frontend, Backend, DB, OIDC y Cache), mientras que el proyecto independiente
+                            <strong>PROCEDIMIENTOS</strong> ejecuta la ingesta programada por Python ETL.
+                        </p>
+                        <div style="display: flex; gap: 8px; shrink: 0;">
+                            <button class="btn-sim" style="font-size: 12px; padding: 8px 14px;"
+                                onclick="runFlowSimulation('user')"><i class="fa-solid fa-user"></i> Simular Acceso
+                                Usuario</button>
+                            <button class="btn-sim sec" style="font-size: 12px; padding: 8px 14px;"
+                                onclick="runFlowSimulation('etl')"><i class="fa-solid fa-gears"></i> Simular Ingesta
+                                ETL</button>
+                            <button class="btn-sim sec" style="font-size: 12px; padding: 8px 14px;"
+                                onclick="runFlowSimulation('cicd')"><i class="fa-solid fa-rotate"></i> Simular CI/CD
+                                Deploy</button>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Diagrama Agrandado a Ancho Completo -->
+                    <div class="diagram-container" style="height: 400px; width: 100%;">
+                        <!-- Dokploy VPS Parent Boundary: VPS-ALEMANIA-DOKPLOY -->
+                        <div class="dokploy-boundary" id="vpsBoundary"
+                            style="left: 285px; top: 10px; width: 710px; height: 375px;">
+                            <span class="boundary-label"
+                                style="color: rgba(59, 130, 246, 0.85); font-size: 9px; font-weight: 800;">VPS-ALEMANIA-DOKPLOY</span>
+                        </div>
+
+                        <!-- Dokploy Project 1 Boundary: INTRANET-REPORTES -->
+                        <div class="dokploy-boundary" id="dokployBoundary"
+                            style="left: 300px; top: 45px; width: 490px; height: 325px;">
+                            <span class="boundary-label">Proyecto: INTRANET-REPORTES</span>
+                        </div>
+
+                        <!-- Dokploy Project 2 Boundary: PROCEDIMIENTOS -->
+                        <div class="dokploy-boundary" id="procedimientosBoundary"
+                            style="left: 810px; top: 45px; width: 170px; height: 325px; border-color: rgba(168, 85, 247, 0.25); background: rgba(168, 85, 247, 0.01);">
+                            <span class="boundary-label" style="color: rgba(168, 85, 247, 0.65);">Proyecto:
+                                PROCEDIMIENTOS</span>
+                        </div>
+
+                        <svg width="100%" height="100%" style="position: absolute; left: 0; top: 0; z-index: 1;">
+                            <!-- Connector paths with fixed coordinates and color-coding -->
+                            <path id="p_user_net" d="M 80,72.5 L 220,197.5" stroke="rgba(59, 130, 246, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_dev_git" d="M 80,197.5 L 80,322.5" stroke="rgba(168, 85, 247, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_git_net" d="M 80,322.5 L 220,197.5" stroke="rgba(168, 85, 247, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_net_front" d="M 220,197.5 L 390,107.5" stroke="rgba(59, 130, 246, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_net_back" d="M 220,197.5 L 540,107.5" stroke="rgba(59, 130, 246, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_front_back" d="M 390,107.5 L 540,107.5" stroke="rgba(59, 130, 246, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_back_redis" d="M 540,107.5 L 690,107.5" stroke="rgba(239, 68, 68, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_back_keycloak" d="M 540,107.5 L 390,267.5" stroke="rgba(16, 185, 129, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_back_mysql" d="M 540,107.5 L 540,267.5" stroke="rgba(6, 182, 212, 0.4)"
+                                stroke-dasharray="4" stroke-width="2.5" fill="none" />
+                            <path id="p_etl_mysql" d="M 895,267.5 L 540,267.5" stroke="rgba(168, 85, 247, 0.4)"
+                                stroke-width="2.5" fill="none" />
+                            <path id="p_net_etl" d="M 220,197.5 L 220,355 L 895,355 L 895,267.5"
+                                stroke="rgba(168, 85, 247, 0.35)" stroke-width="2.5" fill="none" />
+                        </svg>
+
+                        <!-- Nodes -->
+                        <!-- External Column (Left) -->
+                        <div class="node-box net-node" style="left: 20px; top: 40px; width: 120px;" id="n_user">
+                            <i class="fa-solid fa-user"></i>
+                            Usuario Final
+                            <span class="location-badge">Navegador Web</span>
+                        </div>
+
+                        <div class="node-box dev-node" style="left: 20px; top: 165px; width: 120px;" id="n_dev">
+                            <i class="fa-solid fa-code"></i>
+                            Developer / QA
+                            <span class="location-badge">Git Push</span>
+                        </div>
+
+                        <div class="node-box dev-node" style="left: 20px; top: 290px; width: 120px;" id="n_git">
+                            <i class="fa-brands fa-github"></i>
+                            GitHub Repo
+                            <span class="location-badge">CI/CD Webhook</span>
+                        </div>
+
+                        <!-- Ingress (Middle-Left) -->
+                        <div class="node-box net-node" style="left: 170px; top: 165px; width: 120px;" id="n_net">
+                            <i class="fa-solid fa-network-wired"></i>
+                            Traefik Proxy
+                            <span class="location-badge">SSL Port 443</span>
+                        </div>
+
+                        <!-- Inside Dokploy VPS (INTRANET-REPORTES - Row 1) -->
+                        <div class="node-box" style="left: 325px; top: 75px; width: 130px;" id="n_front">
+                            <i class="fa-brands fa-react" id="icon_front"></i>
+                            frontend
+                            <span class="location-badge">Next.js P: 3000</span>
+                        </div>
+
+                        <div class="node-box" style="left: 475px; top: 75px; width: 130px;" id="n_back">
+                            <i class="fa-brands fa-node-js" id="icon_back"></i>
+                            backend
+                            <span class="location-badge">Express API P: 3100</span>
+                        </div>
+
+                        <div class="node-box redis-node" style="left: 625px; top: 75px; width: 130px;" id="n_redis">
+                            <i class="fa-solid fa-bolt"></i>
+                            singular-redis
+                            <span class="location-badge">Redis Cache P: 6379</span>
+                        </div>
+
+                        <!-- Inside Dokploy VPS (INTRANET-REPORTES - Row 2) -->
+                        <div class="node-box auth-node" style="left: 325px; top: 235px; width: 130px;" id="n_keycloak">
+                            <i class="fa-solid fa-user-shield"></i>
+                            keycloak
+                            <span class="location-badge">OIDC Auth Provider</span>
+                        </div>
+
+                        <div class="node-box db-node" style="left: 475px; top: 235px; width: 130px;" id="n_mysql">
+                            <i class="fa-solid fa-database"></i>
+                            banco-singular-db
+                            <span class="location-badge">MySQL DWH</span>
+                        </div>
+
+                        <!-- Inside Dokploy VPS (PROCEDIMIENTOS) -->
+                        <div class="node-box dev-node" style="left: 830px; top: 235px; width: 130px;" id="n_etl">
+                            <i class="fa-brands fa-python"></i>
+                            Python ETL
+                            <span class="location-badge">Dokploy Cron Job</span>
+                        </div>
+
+                        <!-- Animating particles -->
+                        <div class="particle" id="fp1"></div>
+                        <div class="particle" id="fp2"></div>
+                        <div class="particle" id="fp3"></div>
+                    </div>
+                </div>
+
+                <div class="slide-container" id="slide8" data-title="Resultados">
+                    <h2 class="slide-title"><i class="fa-solid fa-circle-check"></i> Resultados y Entregables</h2>
+                    <div class="flex-grow-content" style="justify-content: center;">
+                        <div class="grid-2" style="grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: stretch;">
+                            <!-- Columna Izquierda: Tarjetas de KPI Interactivas -->
+                            <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+                                <h3 style="color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 4px;">Métricas
+                                    de Automatización</h3>
+
+                                <!-- KPI 1: Automatización ETL -->
+                                <button class="kpi-btn active" id="kpiBtnVel" onclick="switchKpiDetail('velocidad')"
+                                    style="text-align: left; background: rgba(59, 130, 246, 0.08); border: 1px solid var(--primary); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none; display: flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit;">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div class="kpi-icon"
+                                            style="background: rgba(59, 130, 246, 0.15); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 16px; shrink: 0; transition: all 0.25s ease;">
+                                            <i class="fa-solid fa-robot"></i>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span
+                                                style="font-size: 13px; font-weight: 700; color: #fff; transition: color 0.25s ease;">Automatización
+                                                ETL</span>
+                                            <span
+                                                style="font-size: 10px; color: var(--text-body); margin-top: 2px;">Ingesta
+                                                de datos por Cron Job</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-value"
+                                        style="font-size: 20px; font-weight: 800; color: var(--primary); font-family: 'Outfit', sans-serif; transition: color 0.25s ease;">
+                                        100% Auto</div>
+                                </button>
+
+                                <!-- KPI 2: Despliegue CI/CD -->
+                                <button class="kpi-btn" id="kpiBtnSeg" onclick="switchKpiDetail('seguridad')"
+                                    style="text-align: left; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none; display: flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit;">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div class="kpi-icon"
+                                            style="background: rgba(255, 255, 255, 0.05); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-body); font-size: 16px; shrink: 0; transition: all 0.25s ease;">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span
+                                                style="font-size: 13px; font-weight: 700; color: #94a3b8; transition: color 0.25s ease;">Despliegue
+                                                Continuo</span>
+                                            <span
+                                                style="font-size: 10px; color: var(--text-body); margin-top: 2px;">Webhook
+                                                Git a Dokploy</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-value"
+                                        style="font-size: 20px; font-weight: 800; color: #94a3b8; font-family: 'Outfit', sans-serif; transition: color 0.25s ease;">
+                                        &lt; 3 min</div>
+                                </button>
+
+                                <!-- KPI 3: Limpieza y Gobierno -->
+                                <button class="kpi-btn" id="kpiBtnRes" onclick="switchKpiDetail('resiliencia')"
+                                    style="text-align: left; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none; display: flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit;">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div class="kpi-icon"
+                                            style="background: rgba(255, 255, 255, 0.05); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-body); font-size: 16px; shrink: 0; transition: all 0.25s ease;">
+                                            <i class="fa-solid fa-broom"></i>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span
+                                                style="font-size: 13px; font-weight: 700; color: #94a3b8; transition: color 0.25s ease;">Limpieza
+                                                y Consistencia</span>
+                                            <span
+                                                style="font-size: 10px; color: var(--text-body); margin-top: 2px;">Validación
+                                                de llaves en memoria</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-value"
+                                        style="font-size: 20px; font-weight: 800; color: #94a3b8; font-family: 'Outfit', sans-serif; transition: color 0.25s ease;">
+                                        0 Errores</div>
+                                </button>
+                            </div>
+
+                            <!-- Columna Derecha: Tarjeta de Detalles del KPI Seleccionado -->
+                            <div class="glass-card"
+                                style="border: 1px solid rgba(59, 130, 246, 0.15); display: flex; flex-direction: column; justify-content: space-between; padding: 25px; border-radius: 14px; background: rgba(15, 23, 42, 0.45); height: 100%;">
+                                <div id="kpiDetailContent"
+                                    style="opacity: 1; transition: opacity 0.25s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <span class="badge" id="kpiBadge"
+                                            style="background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.2); align-self: flex-start; text-transform: uppercase; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">EFICIENCIA</span>
+                                        <h3 id="kpiTitle"
+                                            style="color: #fff; font-size: 18px; margin: 0; font-weight: 700;">Ingesta
+                                            Automática Ininterrumpida</h3>
+                                        <p id="kpiDescription"
+                                            style="font-size: 12.5px; line-height: 1.5; color: var(--text-body); margin: 0;">
+                                            La orquestación del ETL en Dokploy mediante tareas programadas (Cron Jobs)
+                                            elimina los procesos manuales repetitivos del analista, realizando la
+                                            extracción, saneamiento y persistencia en segundo plano sin intervención.
+                                        </p>
+                                    </div>
+
+                                    <!-- Visualización Gráfica o Estado del KPI -->
+                                    <div id="kpiVisualArea"
+                                        style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                                            <div
+                                                style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;">
+                                                <span>Carga e Ingesta Manual (Excel):</span>
+                                                <span style="color: var(--danger); font-weight: 700;">2 horas /
+                                                    día</span>
+                                            </div>
+                                            <div
+                                                style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden;">
+                                                <div style="width: 100%; height: 100%; background: var(--danger);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                                            <div
+                                                style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;">
+                                                <span>Ingesta Desatendida (Dokploy Cron):</span>
+                                                <span style="color: var(--success); font-weight: 700;">0 minutos /
+                                                    día</span>
+                                            </div>
+                                            <div
+                                                style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden;">
+                                                <div
+                                                    style="width: 1%; height: 100%; background: var(--success); box-shadow: 0 0 8px var(--success-glow);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 9: Q&A -->
+                <div class="slide-container" id="slide15" data-title="Preguntas">
+                    <div class="flex-grow-content" style="text-align: center;">
+                        <h2 style="font-size: 48px; margin-bottom: 20px;">Fin de la Presentación</h2>
+                        <p style="font-size: 26px; color: var(--secondary); font-weight: 600; margin-bottom: 40px;">
+                            ¿Preguntas o comentarios?</p>
+                        <div class="glass-card" style="max-width: 500px; margin: 0 auto; padding: 20px;">
+                            <p style="font-size: 14px; margin: 0;">Arquitectura de Datos y Desarrollo Full-Stack | Banco
+                                Singular</p>
+                            <p style="font-size:12px; color:var(--text-body); margin-top:8px; margin-bottom:0;">
+                                Desplegado y Orquestado en Dokploy VPS</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Controles inferiores de navegación -->
+    <div class="controls-bar">
+        <button class="control-btn" id="btnPrev" title="Anterior (Flecha Izquierda)"><i
+                class="fa-solid fa-chevron-left"></i></button>
+        <span class="slide-indicator" id="slideIndicator">1 / 9</span>
+        <button class="control-btn" id="btnNext" title="Siguiente (Flecha Derecha / Espacio)"><i
+                class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <!-- 8. LÓGICA DE CONTROL E INTERACTIVIDAD EN JAVASCRIPT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide-container');
+            const progressBar = document.getElementById('progressBar');
+            const slideIndicator = document.getElementById('slideIndicator');
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+            const btnFullscreen = document.getElementById('btnFullscreen');
+
+            let currentSlide = 0;
+
+            // Fullscreen Presenter Mode
+            btnFullscreen.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    btnFullscreen.innerHTML = '<i class="fa-solid fa-compress"></i> Salir';
+                } else {
+                    btnFullscreen.innerHTML = '<i class="fa-solid fa-expand"></i> Presentar';
+                }
+            });
+
+            // MOSTRAR DIAPOSITIVA
+            function showSlide(index) {
+                if (index < 0) index = 0;
+                if (index >= slides.length) index = slides.length - 1;
+
+                // Transición y clases activas de diapositivas
+                slides.forEach((slide, i) => {
+                    if (i === index) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+
+                currentSlide = index;
+                slideIndicator.textContent = `${currentSlide + 1} / ${slides.length}`;
+                progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+
+                // Habilitar/Deshabilitar botones
+                btnPrev.disabled = currentSlide === 0;
+                btnNext.disabled = currentSlide === slides.length - 1;
+
+                // Actualizar hash URL de navegación directa
+                window.location.hash = `slide${currentSlide + 1}`;
+            }
+
+            // LISTENERS DE NAVEGACIÓN
+            btnPrev.addEventListener('click', () => showSlide(currentSlide - 1));
+            btnNext.addEventListener('click', () => showSlide(currentSlide + 1));
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    showSlide(currentSlide + 1);
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    showSlide(currentSlide - 1);
+                }
+            });
+
+            // Soporte para Hash URL de navegación al cargar
+            const handleHash = () => {
+                const hash = window.location.hash;
+                if (hash && hash.startsWith('#slide')) {
+                    const slideNum = parseInt(hash.replace('#slide', ''), 10);
+                    if (!isNaN(slideNum) && slideNum >= 1 && slideNum <= slides.length) {
+                        showSlide(slideNum - 1);
+                        return;
+                    }
+                }
+                showSlide(0);
+            };
+
+            window.addEventListener('hashchange', handleHash);
+            handleHash();
+        });
+
+        // 9. SIMULADOR DE FLUJO DE ARQUITECTURA UNIFICADO (SLIDE 3) - ANIMACIÓN BASADA EN RUTA SVG
+        let flowTimeout1, flowTimeout2, flowTimeout3;
+        function runFlowSimulation(type) {
+            const dokBoundary = document.getElementById('dokployBoundary');
+            const procBoundary = document.getElementById('procedimientosBoundary');
+            const vpsBoundary = document.getElementById('vpsBoundary');
+            const nUser = document.getElementById('n_user');
+            const nDev = document.getElementById('n_dev');
+            const nNet = document.getElementById('n_net');
+            const nFront = document.getElementById('n_front');
+            const nBack = document.getElementById('n_back');
+            const nRedis = document.getElementById('n_redis');
+            const nMysql = document.getElementById('n_mysql');
+            const nEtl = document.getElementById('n_etl');
+            const nKeycloak = document.getElementById('n_keycloak');
+            const nGit = document.getElementById('n_git');
+
+            const fp1 = document.getElementById('fp1');
+            const fp2 = document.getElementById('fp2');
+            const fp3 = document.getElementById('fp3');
+
+            // Paths
+            const pUserNet = document.getElementById('p_user_net');
+            const pDevGit = document.getElementById('p_dev_git');
+            const pGitNet = document.getElementById('p_git_net');
+            const pNetFront = document.getElementById('p_net_front');
+            const pNetBack = document.getElementById('p_net_back');
+            const pFrontBack = document.getElementById('p_front_back');
+            const pBackRedis = document.getElementById('p_back_redis');
+            const pBackKeycloak = document.getElementById('p_back_keycloak');
+            const pBackMysql = document.getElementById('p_back_mysql');
+            const pEtlMysql = document.getElementById('p_etl_mysql');
+            const pNetEtl = document.getElementById('p_net_etl');
+
+            // Limpiar timeouts y brillos previos
+            clearTimeout(flowTimeout1);
+            clearTimeout(flowTimeout2);
+            clearTimeout(flowTimeout3);
+            fp1.style.display = 'none';
+            fp2.style.display = 'none';
+            if (fp3) fp3.style.display = 'none';
+
+            [nUser, nDev, nNet, nFront, nBack, nRedis, nMysql, nEtl, nKeycloak, nGit].forEach(n => {
+                if (n) n.classList.remove('glow');
+            });
+            dokBoundary.classList.remove('glow');
+            procBoundary.classList.remove('glow');
+            if (vpsBoundary) vpsBoundary.classList.remove('glow');
+
+            if (type === 'user') {
+                nUser.classList.add('glow');
+
+                // Animar Usuario -> Traefik Proxy (reverse = false, goes from start to end)
+                animateAlongPath(pUserNet, fp1, 1000, false, () => {
+                    nNet.classList.add('glow');
+                    dokBoundary.classList.add('glow');
+                    if (vpsBoundary) vpsBoundary.classList.add('glow');
+
+                    // Traefik -> Next.js Frontend
+                    animateAlongPath(pNetFront, fp1, 1200, false, () => {
+                        nFront.classList.add('glow');
+
+                        // Next.js -> Express Backend
+                        animateAlongPath(pFrontBack, fp1, 800, false, () => {
+                            nBack.classList.add('glow');
+
+                            // Consultar Keycloak OIDC (Ida y Vuelta)
+                            animateAlongPath(pBackKeycloak, fp2, 1000, false, () => {
+                                nKeycloak.classList.add('glow');
+
+                                animateAlongPath(pBackKeycloak, fp2, 1000, true, () => {
+                                    nKeycloak.classList.remove('glow');
+
+                                    // Consultar Redis Cache (Ida y Vuelta)
+                                    animateAlongPath(pBackRedis, fp2, 800, false, () => {
+                                        nRedis.classList.add('glow');
+
+                                        animateAlongPath(pBackRedis, fp2, 800, true, () => {
+                                            nRedis.classList.remove('glow');
+
+                                            // Consultar MySQL DWH (Ida y Vuelta)
+                                            animateAlongPath(pBackMysql, fp2, 1000, false, () => {
+                                                nMysql.classList.add('glow');
+
+                                                animateAlongPath(pBackMysql, fp2, 1000, true, () => {
+                                                    nMysql.classList.remove('glow');
+
+                                                    // Enviar respuesta Backend -> Frontend
+                                                    animateAlongPath(pFrontBack, fp1, 800, true, () => {
+                                                        nBack.classList.remove('glow');
+
+                                                        // Devolver Frontend -> Traefik -> Usuario
+                                                        animateAlongPath(pNetFront, fp1, 1200, true, () => {
+                                                            nFront.classList.remove('glow');
+                                                            animateAlongPath(pUserNet, fp1, 1000, true, () => {
+                                                                nNet.classList.remove('glow');
+                                                                dokBoundary.classList.remove('glow');
+                                                                if (vpsBoundary) vpsBoundary.classList.remove('glow');
+                                                                nUser.classList.remove('glow');
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+
+            } else if (type === 'etl') {
+                nEtl.classList.add('glow');
+                procBoundary.classList.add('glow');
+                if (vpsBoundary) vpsBoundary.classList.add('glow');
+
+                // Python ETL -> MySQL (banco-singular-db)
+                flowTimeout1 = setTimeout(() => {
+                    dokBoundary.classList.add('glow');
+                    animateAlongPath(pEtlMysql, fp1, 1800, false, () => {
+                        nMysql.classList.add('glow');
+
+                        flowTimeout2 = setTimeout(() => {
+                            nMysql.classList.remove('glow');
+                            nEtl.classList.remove('glow');
+                            procBoundary.classList.remove('glow');
+                            dokBoundary.classList.remove('glow');
+                            if (vpsBoundary) vpsBoundary.classList.remove('glow');
+                        }, 2000);
+                    });
+                }, 600);
+
+            } else if (type === 'cicd') {
+                const iconFront = document.getElementById('icon_front');
+                const iconBack = document.getElementById('icon_back');
+                const iconEtl = nEtl.querySelector('i');
+
+                nDev.classList.add('glow');
+
+                // Developer -> GitHub (push)
+                animateAlongPath(pDevGit, fp1, 800, false, () => {
+                    nGit.classList.add('glow');
+
+                    // GitHub -> Traefik (webhook request)
+                    animateAlongPath(pGitNet, fp1, 1200, false, () => {
+                        nNet.classList.add('glow');
+                        dokBoundary.classList.add('glow');
+                        procBoundary.classList.add('glow');
+                        if (vpsBoundary) vpsBoundary.classList.add('glow');
+
+                        // Disparar despliegues paralelos en Dokploy
+                        animateAlongPath(pNetFront, fp1, 1200, false, () => {
+                            // Cuando la partícula llega al frontend, cambia el icono a recarga/spinner
+                            iconFront.className = 'fa-solid fa-sync fa-spin';
+                        });
+
+                        animateAlongPath(pNetBack, fp2, 1200, false, () => {
+                            // Cuando la partícula llega al backend, cambia el icono a recarga/spinner
+                            iconBack.className = 'fa-solid fa-sync fa-spin';
+                        });
+
+                        animateAlongPath(pNetEtl, fp3, 1200, false, () => {
+                            // Cuando la partícula llega al ETL, cambia el icono a recarga/spinner
+                            if (iconEtl) iconEtl.className = 'fa-solid fa-sync fa-spin';
+                            nEtl.classList.add('glow');
+
+                            // Tiempo simulado de reconstrucción/reinicio (1800ms)
+                            flowTimeout1 = setTimeout(() => {
+                                // Despliegue exitoso: restaurar iconos y encender brillos de éxito
+                                iconFront.className = 'fa-brands fa-react';
+                                iconBack.className = 'fa-brands fa-node-js';
+                                if (iconEtl) iconEtl.className = 'fa-brands fa-python';
+                                nFront.classList.add('glow');
+                                nBack.classList.add('glow');
+                                nEtl.classList.add('glow');
+
+                                // Devolver Respuesta de Webhook Exitoso (Traefik -> GitHub -> Dev)
+                                // Animación: Traefik -> GitHub (reverse = true)
+                                animateAlongPath(pGitNet, fp1, 1200, true, () => {
+                                    nGit.classList.remove('glow');
+
+                                    // Animación: GitHub -> Developer (reverse = true)
+                                    animateAlongPath(pDevGit, fp1, 800, true, () => {
+                                        // Developer recibe el estatus final "Build Success"
+                                        nDev.classList.add('glow');
+
+                                        flowTimeout2 = setTimeout(() => {
+                                            [nDev, nGit, nNet, nFront, nBack, nEtl, dokBoundary, procBoundary, vpsBoundary].forEach(el => {
+                                                if (el) el.classList.remove('glow');
+                                            });
+                                        }, 2000);
+                                    });
+                                });
+                            }, 1800);
+                        });
+                    });
+                });
+            }
+        }
+
+        // Sistema de animación preciso sobre curvas SVG
+        function animateAlongPath(pathElement, particleElement, duration, reverse, callback) {
+            particleElement.style.display = 'block';
+            particleElement.className = 'particle ' + (duration < 600 ? 'fast' : 'slow');
+            const pathLength = pathElement.getTotalLength();
+            let startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+
+                const currentLength = reverse ? pathLength * (1 - progress) : pathLength * progress;
+                const point = pathElement.getPointAtLength(currentLength);
+
+                // Centrar partícula en la línea de recorrido
+                particleElement.style.left = (point.x - 4) + 'px';
+                particleElement.style.top = (point.y - 4) + 'px';
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    particleElement.style.display = 'none';
+                    if (callback) callback();
+                }
+            }
+            window.requestAnimationFrame(step);
+        }
+
+        function writeConsole(consoleElement, text, type) {
+            const line = document.createElement('div');
+            line.className = 'console-line ' + (type || '');
+            const time = new Date().toLocaleTimeString();
+            line.textContent = `[${time}] ${text}`;
+            consoleElement.appendChild(line);
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+
+        // 10. SIMULADOR DE INTEGRIDAD DE ETL (SLIDE 6)
+        function runEtlSimulation() {
+            const consoleBox = document.getElementById('etlConsole');
+            const runBtn = document.getElementById('btnRunEtl');
+            const progressLine = document.getElementById('etlProgressLine');
+
+            // Elementos del Stepper
+            const step1 = document.getElementById('etlStep1');
+            const step2 = document.getElementById('etlStep2');
+            const step3 = document.getElementById('etlStep3');
+
+            const icon1 = document.getElementById('etlStep1Icon');
+            const icon2 = document.getElementById('etlStep2Icon');
+            const icon3 = document.getElementById('etlStep3Icon');
+
+            // Resetear estados
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+            consoleBox.innerHTML = '';
+
+            progressLine.style.height = '0%';
+
+            step1.className = 'etl-step';
+            step2.className = 'etl-step';
+            step3.className = 'etl-step';
+
+            icon1.innerHTML = '1';
+            icon2.innerHTML = '2';
+            icon3.innerHTML = '3';
+
+            // Paso 1: Iniciar Ingesta
+            step1.classList.add('active');
+            writeConsole(consoleBox, '📂 Buscando archivos CSV en directorio /etl...', 'info');
+
+            setTimeout(() => {
+                writeConsole(consoleBox, '📂 Archivo `transacciones_diarias.csv` encontrado (15.2 KB).', 'success');
+                writeConsole(consoleBox, '🔄 Cargando registros a memoria con Pandas...', 'info');
+
+                setTimeout(() => {
+                    // Paso 1 Finalizado -> Paso 2 Activo
+                    step1.classList.remove('active');
+                    step1.classList.add('completed');
+                    icon1.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    progressLine.style.height = '50%';
+
+                    step2.classList.add('active');
+                    writeConsole(consoleBox, '🔍 Iniciando validación de consistencia y tipos...', 'info');
+
+                    setTimeout(() => {
+                        writeConsole(consoleBox, '🔍 Ejecutando análisis de Integridad Referencial...', 'info');
+                        writeConsole(consoleBox, '⚠️ [Inconsistencia] Transacción #9403 apunta a cuenta "CT-8940" inexistente.', 'warn');
+                        writeConsole(consoleBox, '🛠️ Corrigiendo cuenta vacía en memoria enlazando llave de dimensión genérica.', 'success');
+                        writeConsole(consoleBox, '🧹 Normalizando tipo de cliente: "FISICA" -> "Natural" ... OK', 'success');
+                        writeConsole(consoleBox, '🧹 Normalizando tipo de cliente: "MORAL" -> "Jurídica" ... OK', 'success');
+                        writeConsole(consoleBox, '✅ Todos los registros validados en memoria (100% de integridad).', 'success');
+
+                        setTimeout(() => {
+                            // Paso 2 Finalizado -> Paso 3 Activo
+                            step2.classList.remove('active');
+                            step2.classList.add('completed');
+                            icon2.innerHTML = '<i class="fa-solid fa-check"></i>';
+                            progressLine.style.height = '100%';
+
+                            step3.classList.add('active');
+                            writeConsole(consoleBox, '🚀 Ingestando a base de datos MySQL (DWH)...', 'info');
+
+                            setTimeout(() => {
+                                writeConsole(consoleBox, '🚀 Insertando registros en bloques optimizados (Bulk Insert).', 'info');
+                                writeConsole(consoleBox, '🎉 ETL ejecutado de forma íntegra sin abortos.', 'success');
+                                writeConsole(consoleBox, '💾 Base de datos guardó 15,200 registros de manera consistente.', 'success');
+
+                                // Paso 3 Finalizado
+                                step3.classList.remove('active');
+                                step3.classList.add('completed');
+                                icon3.innerHTML = '<i class="fa-solid fa-check"></i>';
+
+                                // Restaurar botón
+                                runBtn.disabled = false;
+                                runBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Ejecutar de Nuevo';
+                            }, 1200);
+
+                        }, 1200);
+
+                    }, 1200);
+
+                }, 1000);
+            }, 1000);
+        }
+
+        // CONTROL DE PESTAÑAS DINÁMICAS (DIAPOSITIVA 2)
+        function switchSlide2Tab(tabName) {
+            const btnRetos = document.getElementById('tabBtnRetos');
+            const btnObjetivos = document.getElementById('tabBtnObjetivos');
+            const contentRetos = document.getElementById('slide2ContentRetos');
+            const contentObjetivos = document.getElementById('slide2ContentObjetivos');
+
+            if (tabName === 'retos') {
+                btnRetos.style.background = 'var(--primary)';
+                btnRetos.style.color = '#fff';
+                btnRetos.style.boxShadow = '0 4px 12px var(--primary-glow)';
+
+                btnObjetivos.style.background = 'transparent';
+                btnObjetivos.style.color = 'var(--text-body)';
+                btnObjetivos.style.boxShadow = 'none';
+
+                contentObjetivos.style.opacity = '0';
+                setTimeout(() => {
+                    contentObjetivos.style.display = 'none';
+                    contentRetos.style.display = 'flex';
+                    setTimeout(() => {
+                        contentRetos.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            } else {
+                btnObjetivos.style.background = 'var(--success)';
+                btnObjetivos.style.color = '#fff';
+                btnObjetivos.style.boxShadow = '0 4px 12px var(--success-glow)';
+
+                btnRetos.style.background = 'transparent';
+                btnRetos.style.color = 'var(--text-body)';
+                btnRetos.style.boxShadow = 'none';
+
+                contentRetos.style.opacity = '0';
+                setTimeout(() => {
+                    contentRetos.style.display = 'none';
+                    contentObjetivos.style.display = 'flex';
+                    setTimeout(() => {
+                        contentObjetivos.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            }
+        }
+
+        // CONTROL DE ENFOQUE ARQUITECTÓNICO (DIAPOSITIVA 4)
+        function switchSlide4Decision(type) {
+            const btnPython = document.getElementById('decBtnPython');
+            const btnMicro = document.getElementById('decBtnMicro');
+            const btnCache = document.getElementById('decBtnCache');
+            const detailContainer = document.getElementById('slide4DetailContent');
+
+            // Remueve clase active de todos
+            [btnPython, btnMicro, btnCache].forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = 'rgba(255, 255, 255, 0.01)';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                const icon = btn.querySelector('.dec-icon');
+                const titles = btn.querySelectorAll('span');
+                icon.style.background = 'rgba(255, 255, 255, 0.05)';
+                icon.style.color = 'var(--text-body)';
+                titles[0].style.color = '#94a3b8';
+            });
+
+            // Datos del contenido dinámico
+            let badgeText = '';
+            let title = '';
+            let description = '';
+            let rejected = '';
+            let approved = '';
+            let activeColor = '';
+            let activeGlow = '';
+            let btnTarget = null;
+
+            if (type === 'python') {
+                btnTarget = btnPython;
+                activeColor = 'var(--primary)';
+                activeGlow = 'rgba(59, 130, 246, 0.2)';
+                badgeText = 'Lógica Programática';
+                title = 'Python ETL vs. Herramientas Visuales (Talend/SSIS)';
+                description = 'El uso de <strong>Python (Pandas + SQLAlchemy)</strong> permite un pipeline 100% programático y versionable en Git. Facilita validaciones en memoria y pruebas automatizadas, eliminando la dependencia y los altos costos de licencias de herramientas ETL comerciales cerradas.';
+                rejected = 'ETLs visuales cerrados, dependientes de licencias propietarias y difíciles de versionar.';
+                approved = 'Código modular en Git, automatizado y libre de licencias de software.';
+            } else if (type === 'micro') {
+                btnTarget = btnMicro;
+                activeColor = 'var(--secondary)';
+                activeGlow = 'rgba(6, 182, 212, 0.2)';
+                badgeText = 'Aislamiento de Recursos';
+                title = 'Microservicios en Dokploy vs. Servidor Monolito';
+                description = 'Configurar contenedores aislados en <strong>Dokploy (Docker)</strong> distribuye la carga del frontend, backend, caché y DB. Evita caídas globales del sistema ante picos de consumo y permite despliegues continuos (CI/CD) sin interrupciones.';
+                rejected = 'Servidor monolito vulnerable a fallas en cascada y picos de carga acumulada.';
+                approved = 'Contenedores Docker aislados con despliegue CI/CD inmediato en Dokploy.';
+            } else if (type === 'cache') {
+                btnTarget = btnCache;
+                activeColor = 'var(--success)';
+                activeGlow = 'rgba(16, 185, 129, 0.2)';
+                badgeText = 'Optimización de Lecturas';
+                title = 'Redis Local Cache vs. Consultas Remotas al DWH';
+                description = 'La caché local en <strong>Redis</strong> mitiga la latencia transatlántica de <strong>~200ms</strong> del DWH en servidores. Responde consultas en <strong>&lt; 15ms</strong> y reduce el tráfico a internet y la carga sobre el servidor central.';
+                rejected = 'Consultas directas síncronas con alta latencia física de red transatlántica (~200ms).';
+                approved = 'Lecturas en memoria local (<15ms) con fallback resiliente en base de datos.';
+            }
+
+            // Activa el seleccionado
+            btnTarget.classList.add('active');
+            btnTarget.style.background = `rgba(${type === 'python' ? '59,130,246' : type === 'micro' ? '6,182,212' : '16,185,129'}, 0.08)`;
+            btnTarget.style.borderColor = activeColor;
+            btnTarget.style.boxShadow = `0 4px 15px ${activeGlow}`;
+
+            const icon = btnTarget.querySelector('.dec-icon');
+            const titles = btnTarget.querySelectorAll('span');
+            icon.style.background = `rgba(${type === 'python' ? '59,130,246' : type === 'micro' ? '6,182,212' : '16,185,129'}, 0.15)`;
+            icon.style.color = activeColor;
+            titles[0].style.color = '#fff';
+
+            // Animación de contenido dinámico
+            detailContainer.style.opacity = '0';
+            setTimeout(() => {
+                const badge = detailContainer.querySelector('.badge');
+                const titleEl = document.getElementById('decTitle');
+                const descEl = document.getElementById('decDescription');
+                const compRejEl = document.getElementById('compRejected');
+                const compAppEl = document.getElementById('compApproved');
+
+                badge.textContent = badgeText;
+                badge.style.color = activeColor;
+                badge.style.borderColor = `rgba(${type === 'python' ? '59, 130, 246' : type === 'micro' ? '6, 182, 212' : '16, 185, 129'}, 0.2)`;
+                badge.style.background = `rgba(${type === 'python' ? '59, 130, 246' : type === 'micro' ? '6, 182, 212' : '16, 185, 129'}, 0.1)`;
+
+                titleEl.textContent = title;
+                descEl.innerHTML = description;
+                compRejEl.textContent = rejected;
+                compAppEl.textContent = approved;
+
+                detailContainer.style.opacity = '1';
+            }, 250);
+        }
+        // CONTROL DE KPIS INTERACTIVOS (DIAPOSITIVA 8 - RESULTADOS)
+        function switchKpiDetail(type) {
+            const btnVel = document.getElementById('kpiBtnVel');
+            const btnSeg = document.getElementById('kpiBtnSeg');
+            const btnRes = document.getElementById('kpiBtnRes');
+            const detailContainer = document.getElementById('kpiDetailContent');
+
+            // Resetear estados activos de los botones
+            [btnVel, btnSeg, btnRes].forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = 'rgba(255, 255, 255, 0.01)';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                const icon = btn.querySelector('.kpi-icon');
+                const titles = btn.querySelectorAll('span');
+                const val = btn.querySelector('.kpi-value');
+                icon.style.background = 'rgba(255, 255, 255, 0.05)';
+                icon.style.color = 'var(--text-body)';
+                titles[0].style.color = '#94a3b8';
+                if (val) val.style.color = '#94a3b8';
+            });
+
+            let activeColor = '';
+            let activeGlow = '';
+            let badgeText = '';
+            let title = '';
+            let description = '';
+            let btnTarget = null;
+            let visualHtml = '';
+
+            if (type === 'velocidad') {
+                btnTarget = btnVel;
+                activeColor = 'var(--primary)';
+                activeGlow = 'rgba(59, 130, 246, 0.2)';
+                badgeText = 'EFICIENCIA';
+                title = 'Ingesta Automática Ininterrumpida';
+                description = 'La orquestación del ETL en Dokploy mediante tareas programadas (Cron Jobs) elimina los procesos manuales repetitivos del analista, realizando la extracción, saneamiento y persistencia en segundo plano sin intervención.';
+                visualHtml = `
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;">
+                            <span>Carga e Ingesta Manual (Excel):</span>
+                            <span style="color: var(--danger); font-weight: 700;">2 horas / día</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: var(--danger);"></div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;">
+                            <span>Ingesta Desatendida (Dokploy Cron):</span>
+                            <span style="color: var(--success); font-weight: 700;">0 minutos / día</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 1%; height: 100%; background: var(--success); box-shadow: 0 0 8px var(--success-glow);"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'seguridad') {
+                btnTarget = btnSeg;
+                activeColor = 'var(--success)';
+                activeGlow = 'rgba(16, 185, 129, 0.2)';
+                badgeText = 'DESPLIEGUE';
+                title = 'Entrega Continua Sin Fricciones';
+                description = 'Integración automatizada con GitHub. Al hacer un push a producción, un Webhook notifica a Dokploy, la cual descarga el código, empaqueta la imagen Docker y actualiza los contenedores en menos de 3 minutos sin caída del servicio.';
+                visualHtml = `
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 12px; font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #94a3b8;">Detección de Cambios (Github Push):</span>
+                            <span style="color: var(--success); font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Automatizado</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #94a3b8;">Construcción de Contenedores (Docker):</span>
+                            <span style="color: var(--success); font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Exitoso (&lt;3 min)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #94a3b8;">Interrupción de Servicio:</span>
+                            <span style="color: var(--success); font-weight: 700;"><i class="fa-solid fa-circle-check"></i> 0% (Zero Downtime)</span>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'resiliencia') {
+                btnTarget = btnRes;
+                activeColor = 'var(--secondary)';
+                activeGlow = 'rgba(6, 182, 212, 0.2)';
+                badgeText = 'INTEGRIDAD';
+                title = 'Saneamiento y Restricciones de Integridad';
+                description = 'El motor programático en Python valida automáticamente en memoria que todas las llaves foráneas y tipos de datos coincidan con el modelo de base de datos MySQL, previniendo cargas corruptas e inserciones huérfanas.';
+                visualHtml = `
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 12px; font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #94a3b8;">Normalización de tipos (Natural/Jurídica):</span>
+                            <span style="color: var(--secondary); font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Automatizado</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #94a3b8;">Filtrado de transacciones sin clientes:</span>
+                            <span style="color: var(--secondary); font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Auto-Descarte</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #94a3b8;">Alertas por registros huérfanos:</span>
+                            <span style="color: var(--secondary); font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Notificaciones activas</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Activar botón seleccionado
+            btnTarget.classList.add('active');
+            btnTarget.style.background = `rgba(${type === 'velocidad' ? '59,130,246' : type === 'seguridad' ? '16,185,129' : '6,182,212'}, 0.08)`;
+            btnTarget.style.borderColor = activeColor;
+            btnTarget.style.boxShadow = `0 4px 15px ${activeGlow}`;
+
+            const icon = btnTarget.querySelector('.kpi-icon');
+            const titles = btnTarget.querySelectorAll('span');
+            const val = btnTarget.querySelector('.kpi-value');
+            icon.style.background = `rgba(${type === 'velocidad' ? '59,130,246' : type === 'seguridad' ? '16,185,129' : '6,182,212'}, 0.15)`;
+            icon.style.color = activeColor;
+            titles[0].style.color = '#fff';
+            if (val) val.style.color = activeColor;
+
+            // Animación del panel de detalles
+            detailContainer.style.opacity = '0';
+            setTimeout(() => {
+                const badge = detailContainer.querySelector('.badge');
+                const titleEl = document.getElementById('kpiTitle');
+                const descEl = document.getElementById('kpiDescription');
+                const visualArea = document.getElementById('kpiVisualArea');
+
+                badge.textContent = badgeText;
+                badge.style.color = activeColor;
+                badge.style.borderColor = `rgba(${type === 'velocidad' ? '59,130,246' : type === 'seguridad' ? '16,185,129' : '6,182,212'}, 0.2)`;
+                badge.style.background = `rgba(${type === 'velocidad' ? '59,130,246' : type === 'seguridad' ? '16,185,129' : '6,182,212'}, 0.1)`;
+
+                titleEl.textContent = title;
+                descEl.innerHTML = description;
+                visualArea.innerHTML = visualHtml;
+
+                detailContainer.style.opacity = '1';
+            }, 250);
+        }
+    </script>
+</body>
+
+</html>

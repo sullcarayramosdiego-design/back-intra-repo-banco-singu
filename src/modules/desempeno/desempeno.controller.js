@@ -21,8 +21,8 @@ class DesempenoController {
   /** GET /api/reportes/desempeno-ejecutivos — ranking por transacciones */
   async getDesempenoEjecutivos(req, res, next) {
     try {
-      const { zona, region, canal, top } = req.query;
-      const rows = await desempenoService.getRankingEjecutivos({ zona, region, canal, top });
+      const { zona, region, canal, top, ejecutivo_id } = req.query;
+      const rows = await desempenoService.getRankingEjecutivos({ zona, region, canal, top, ejecutivo_id });
       const formattedData = rows.map(row => ({
         ejecutivo_id:           parseInt(row.ejecutivo_id, 10),
         nombre_ejecutivo:       row.nombre_ejecutivo,
@@ -44,8 +44,8 @@ class DesempenoController {
   /** GET /api/reportes/desempeno/kpis — KPIs resumen */
   async getKpis(req, res, next) {
     try {
-      const { zona, region, canal } = req.query;
-      const row = await desempenoService.getKpisDesempeno({ zona, region, canal });
+      const { zona, region, canal, ejecutivo_id } = req.query;
+      const row = await desempenoService.getKpisDesempeno({ zona, region, canal, ejecutivo_id });
       return res.json(successResponse({
         total_ejecutivos_activos: parseInt(row.total_ejecutivos_activos, 10) || 0,
         total_transacciones:      parseInt(row.total_transacciones, 10) || 0,
@@ -60,8 +60,8 @@ class DesempenoController {
   /** GET /api/reportes/desempeno/por-zona — agrupado por zona */
   async getPorZona(req, res, next) {
     try {
-      const { canal, region } = req.query;
-      const rows = await desempenoService.getTransaccionesPorZona({ canal, region });
+      const { canal, region, ejecutivo_id } = req.query;
+      const rows = await desempenoService.getTransaccionesPorZona({ canal, region, ejecutivo_id });
       const formattedData = rows.map(row => ({
         zona:                   row.zona,
         region:                 row.region,
@@ -77,8 +77,8 @@ class DesempenoController {
   /** GET /api/reportes/desempeno/evolucion — evolución mensual por zona */
   async getEvolucion(req, res, next) {
     try {
-      const { zona, region, canal } = req.query;
-      const rows = await desempenoService.getEvolucionMensual({ zona, region, canal });
+      const { zona, region, canal, ejecutivo_id } = req.query;
+      const rows = await desempenoService.getEvolucionMensual({ zona, region, canal, ejecutivo_id });
       const formattedData = rows.map(row => ({
         periodo:                row.periodo,
         zona:                   row.zona,
@@ -93,8 +93,8 @@ class DesempenoController {
   /** GET /api/reportes/desempeno/canales — distribución por canal */
   async getCanales(req, res, next) {
     try {
-      const { zona, region } = req.query;
-      const rows = await desempenoService.getDistribucionCanal({ zona, region });
+      const { zona, region, ejecutivo_id } = req.query;
+      const rows = await desempenoService.getDistribucionCanal({ zona, region, ejecutivo_id });
       const formattedData = rows.map(row => ({
         canal:                  row.canal,
         cantidad_transacciones: parseInt(row.cantidad_transacciones, 10),

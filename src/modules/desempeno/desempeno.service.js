@@ -29,13 +29,14 @@ class DesempenoService {
    * Ranking de ejecutivos por transacciones gestionadas con filtros opcionales.
    * Usado para: tabla ranking + gráfico barras top ejecutivos.
    */
-  async getRankingEjecutivos({ zona, region, canal, top } = {}) {
+  async getRankingEjecutivos({ zona, region, canal, top, ejecutivo_id } = {}) {
     const whereClauses = [];
     const params = [];
 
     if (zona)   { whereClauses.push('de.zona = ?');   params.push(zona); }
     if (region) { whereClauses.push('de.region = ?'); params.push(region); }
     if (canal)  { whereClauses.push('ft.canal = ?');  params.push(canal); }
+    if (ejecutivo_id) { whereClauses.push('de.ejecutivo_id = ?'); params.push(ejecutivo_id); }
 
     const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
     const limitStr = top ? `LIMIT ${parseInt(top, 10)}` : 'LIMIT 20';
@@ -69,12 +70,13 @@ class DesempenoService {
    * Agrupación por zona: totales de transacciones y montos.
    * Usado para: gráfico dona / barras agrupadas por zona.
    */
-  async getTransaccionesPorZona({ canal, region } = {}) {
+  async getTransaccionesPorZona({ canal, region, ejecutivo_id } = {}) {
     const whereClauses = [];
     const params = [];
 
     if (region) { whereClauses.push('de.region = ?'); params.push(region); }
     if (canal)  { whereClauses.push('ft.canal = ?');  params.push(canal); }
+    if (ejecutivo_id) { whereClauses.push('de.ejecutivo_id = ?'); params.push(ejecutivo_id); }
 
     const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
@@ -100,13 +102,14 @@ class DesempenoService {
    * Evolución mensual de transacciones por zona.
    * Usado para: gráfico de líneas (tendencia temporal).
    */
-  async getEvolucionMensual({ zona, region, canal } = {}) {
+  async getEvolucionMensual({ zona, region, canal, ejecutivo_id } = {}) {
     const whereClauses = [];
     const params = [];
 
     if (zona)   { whereClauses.push('de.zona = ?');   params.push(zona); }
     if (region) { whereClauses.push('de.region = ?'); params.push(region); }
     if (canal)  { whereClauses.push('ft.canal = ?');  params.push(canal); }
+    if (ejecutivo_id) { whereClauses.push('de.ejecutivo_id = ?'); params.push(ejecutivo_id); }
 
     const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
@@ -131,12 +134,13 @@ class DesempenoService {
    * Distribución por canal de las transacciones.
    * Usado para: gráfico dona de canales.
    */
-  async getDistribucionCanal({ zona, region } = {}) {
+  async getDistribucionCanal({ zona, region, ejecutivo_id } = {}) {
     const whereClauses = [];
     const params = [];
 
     if (zona)   { whereClauses.push('de.zona = ?');   params.push(zona); }
     if (region) { whereClauses.push('de.region = ?'); params.push(region); }
+    if (ejecutivo_id) { whereClauses.push('de.ejecutivo_id = ?'); params.push(ejecutivo_id); }
 
     const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
@@ -161,13 +165,14 @@ class DesempenoService {
   /**
    * KPIs resumen del módulo de desempeño.
    */
-  async getKpisDesempeno({ zona, region, canal } = {}) {
+  async getKpisDesempeno({ zona, region, canal, ejecutivo_id } = {}) {
     const whereClauses = [];
     const params = [];
 
     if (zona)   { whereClauses.push('de.zona = ?');   params.push(zona); }
     if (region) { whereClauses.push('de.region = ?'); params.push(region); }
     if (canal)  { whereClauses.push('ft.canal = ?');  params.push(canal); }
+    if (ejecutivo_id) { whereClauses.push('de.ejecutivo_id = ?'); params.push(ejecutivo_id); }
 
     const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
@@ -194,11 +199,16 @@ class DesempenoService {
     const [zonas]    = await db.pool.query('SELECT DISTINCT zona FROM dim_ejecutivos WHERE zona IS NOT NULL ORDER BY zona');
     const [regiones] = await db.pool.query('SELECT DISTINCT region FROM dim_ejecutivos WHERE region IS NOT NULL ORDER BY region');
     const [canales]  = await db.pool.query('SELECT DISTINCT canal FROM fact_transacciones WHERE canal IS NOT NULL ORDER BY canal');
+    const [ejecutivos] = await db.pool.query('SELECT ejecutivo_id, nombre_ejecutivo FROM dim_ejecutivos WHERE nombre_ejecutivo IS NOT NULL ORDER BY nombre_ejecutivo');
 
     return {
       zonas:    zonas.map(r => r.zona),
       regiones: regiones.map(r => r.region),
-      canales:  canales.map(r => r.canal)
+      canales:  canales.map(r => r.canal),
+      ejecutivos: ejecutivos.map(e => ({
+        id: e.ejecutivo_id,
+        nombre: e.nombre_ejecutivo
+      }))
     };
   }
 
