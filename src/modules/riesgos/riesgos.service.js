@@ -1,4 +1,5 @@
 const db = require('../../core/config/database');
+const cache = require('../../core/services/cache.service');
 
 class RiesgosService {
 
@@ -6,6 +7,12 @@ class RiesgosService {
    * Mapa de riesgo crediticio básico: clasificación de cartera por zona y región.
    */
   async getMapaRiesgoCrediticio() {
+    const cacheKey = 'riesgos:mapa-crediticio';
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const sql = `
       SELECT 
         de.zona,
@@ -22,7 +29,9 @@ class RiesgosService {
       ORDER BY de.zona, de.region, 
         FIELD(fpc.clasificacion_cartera, 'NORMAL', 'CPP', 'DEFICIENTE', 'DUDOSO', 'PERDIDA');
     `;
-    return await db.query(sql);
+    const result = await db.query(sql);
+    await cache.set(cacheKey, result, 300); // Cachear por 5 minutos
+    return result;
   }
 
   /**
@@ -30,6 +39,12 @@ class RiesgosService {
    * y filtros opcionales de fechas.
    */
   async getMapaRiesgoIntegral({ fecha_inicio, fecha_fin } = {}) {
+    const cacheKey = `riesgos:mapa-integral:${fecha_inicio || 'all'}:${fecha_fin || 'all'}`;
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const queryParams = [];
     let dateFilter = '';
 
@@ -73,6 +88,7 @@ class RiesgosService {
     `;
 
     const rows = await db.query(sql, queryParams);
+    await cache.set(cacheKey, rows, 120); // Cachear por 2 minutos
     return rows;
   }
 }
