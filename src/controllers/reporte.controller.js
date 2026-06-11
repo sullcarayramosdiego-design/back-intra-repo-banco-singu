@@ -5,7 +5,8 @@ class ReporteController {
   
   async getResumen(req, res, next) {
     try {
-      const data = await kpiService.getResumenDashboard();
+      const { region, segmento, producto } = req.query;
+      const data = await kpiService.getResumenDashboard({ region, segmento, producto });
       return res.json(successResponse(data, 'Resumen consolidado del Dashboard obtenido con éxito.'));
     } catch (error) {
       next(error);

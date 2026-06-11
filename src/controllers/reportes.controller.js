@@ -10,24 +10,41 @@ class ReportesController {
    */
   async getCarteraActiva(req, res, next) {
     try {
-      // Deducción de JOINs: Para obtener la cartera activa agrupada por tipo de producto y región,
-      // unimos la tabla de hechos 'fact_posicion_cartera' (fpc) que contiene los saldos de cada cuenta
-      // con la dimensión 'dim_productos' (dp) mediante 'producto_id' (para identificar el tipo_producto)
-      // y la dimensión 'dim_ejecutivos' (de) mediante 'ejecutivo_id' (para obtener la región del ejecutivo asignado).
+      const { region, segmento, producto } = req.query;
+      let whereClauses = [];
+      let params = [];
+
+      if (region) {
+        whereClauses.push('de.region = ?');
+        params.push(region);
+      }
+      if (segmento) {
+        whereClauses.push('dc.segmento = ?');
+        params.push(segmento);
+      }
+      if (producto) {
+        whereClauses.push('dp.tipo_producto = ?');
+        params.push(producto);
+      }
+
+      const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
       const sql = `
         SELECT 
           dp.tipo_producto,
           de.region,
-          SUM(fpc.saldo) AS saldo_total,
+          SUM(ABS(fpc.saldo)) AS saldo_total,
           COUNT(DISTINCT fpc.cuenta_id) AS total_cuentas
         FROM fact_posicion_cartera fpc
         JOIN dim_productos dp ON fpc.producto_id = dp.producto_id
         JOIN dim_ejecutivos de ON fpc.ejecutivo_id = de.ejecutivo_id
+        JOIN dim_clientes dc ON fpc.cliente_id = dc.cliente_id
+        ${whereStr}
         GROUP BY dp.tipo_producto, de.region
         ORDER BY dp.tipo_producto, de.region;
       `;
 
-      const [rows] = await db.query(sql);
+      const [rows] = await db.query(sql, params);
 
       // Formatear los tipos de datos numéricos
       const formattedData = rows.map(row => ({
@@ -147,21 +164,41 @@ class ReportesController {
    */
   async getComposicionClientes(req, res, next) {
     try {
-      // Deducción de JOINs: Toda la información de segmentación y atributos demográficos del cliente
-      // (segmento, tipo_persona, ciudad) se encuentra almacenada directamente en la tabla de dimensión
-      // 'dim_clientes'. Por lo tanto, no se requieren JOINs adicionales.
+      const { region, segmento, producto } = req.query;
+      let whereClauses = [];
+      let params = [];
+
+      if (region) {
+        whereClauses.push('de.region = ?');
+        params.push(region);
+      }
+      if (segmento) {
+        whereClauses.push('dc.segmento = ?');
+        params.push(segmento);
+      }
+      if (producto) {
+        whereClauses.push('dp.tipo_producto = ?');
+        params.push(producto);
+      }
+
+      const whereStr = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
       const sql = `
         SELECT 
-          segmento,
-          tipo_persona,
-          ciudad,
-          COUNT(cliente_id) AS cantidad_clientes
-        FROM dim_clientes
-        GROUP BY segmento, tipo_persona, ciudad
+          dc.segmento,
+          dc.tipo_persona,
+          dc.ciudad,
+          COUNT(DISTINCT dc.cliente_id) AS cantidad_clientes
+        FROM dim_clientes dc
+        LEFT JOIN fact_posicion_cartera fpc ON dc.cliente_id = fpc.cliente_id
+        LEFT JOIN dim_ejecutivos de ON fpc.ejecutivo_id = de.ejecutivo_id
+        LEFT JOIN dim_productos dp ON fpc.producto_id = dp.producto_id
+        ${whereStr}
+        GROUP BY dc.segmento, dc.tipo_persona, dc.ciudad
         ORDER BY cantidad_clientes DESC;
       `;
 
-      const [rows] = await db.query(sql);
+      const [rows] = await db.query(sql, params);
 
       const formattedData = rows.map(row => ({
         segmento: row.segmento,
