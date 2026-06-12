@@ -1445,7 +1445,7 @@
                                     Referencial</h3>
                                 <p style="font-size: 13px; margin-bottom: 0; color: var(--text-body);">
                                     Validación, limpieza y normalización programática de datos en memoria antes de
-                                    persistir en MySQL.
+                                    persistir in MySQL.
                                 </p>
                             </div>
 
@@ -1524,6 +1524,124 @@
                             <button class="btn-sim" id="btnRunEtl" onclick="runEtlSimulation()"
                                 style="width: 100%; justify-content: center; padding: 12px;"><i
                                     class="fa-solid fa-play"></i> Iniciar Ingesta & Procesamiento</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diapositiva 7: Estructura de la Base de Datos (schema.sql) -->
+                <div class="slide-container" id="slide7" data-title="Estructura de la Base de Datos" style="padding: 35px 55px;">
+                    <h2 class="slide-title"><i class="fa-solid fa-database"></i> Estructura y Diseño de la Base de Datos (schema.sql)</h2>
+                    <div class="flex-grow-content" style="justify-content: center;">
+                        <div class="grid-2" style="grid-template-columns: 1.25fr 1fr; gap: 30px; align-items: stretch;">
+                            
+                            <!-- Columna Izquierda: Diagrama Interactivo de Base de Datos -->
+                            <div class="diagram-container" style="height: 400px; position: relative; width: 100%;">
+                                <svg width="100%" height="100%" style="position: absolute; left: 0; top: 0; z-index: 1;">
+                                    <!-- Conectores estrella a fact_posicion_cartera -->
+                                    <line x1="100" y1="85" x2="230" y2="135" stroke="rgba(59, 130, 246, 0.4)" stroke-width="2.5" />
+                                    <line x1="380" y1="85" x2="290" y2="135" stroke="rgba(59, 130, 246, 0.4)" stroke-width="2.5" />
+                                    <line x1="100" y1="285" x2="230" y2="195" stroke="rgba(59, 130, 246, 0.4)" stroke-width="2.5" />
+                                    <line x1="380" y1="285" x2="290" y2="195" stroke="rgba(59, 130, 246, 0.4)" stroke-width="2.5" />
+                                    <line x1="260" y1="165" x2="260" y2="285" stroke="rgba(59, 130, 246, 0.4)" stroke-width="2.5" stroke-dasharray="4" />
+                                </svg>
+
+                                <!-- Dimensión Clientes (Arriba Izquierda) -->
+                                <div class="node-box auth-node" style="left: 30px; top: 50px; width: 140px; cursor: pointer;" id="dbNodeClientes" onclick="switchDbTableDetail('clientes')">
+                                    <i class="fa-solid fa-users"></i>
+                                    dim_clientes
+                                    <span class="location-badge">Dimensión de Clientes</span>
+                                </div>
+
+                                <!-- Dimensión Productos (Arriba Derecha) -->
+                                <div class="node-box net-node" style="left: 310px; top: 50px; width: 140px; cursor: pointer;" id="dbNodeProductos" onclick="switchDbTableDetail('productos')">
+                                    <i class="fa-solid fa-tags"></i>
+                                    dim_productos
+                                    <span class="location-badge">Catálogo de Productos</span>
+                                </div>
+
+                                <!-- Tabla de Hechos: Posición de Cartera (Centro) -->
+                                <div class="node-box glow" style="left: 175px; top: 125px; width: 170px; cursor: pointer; border-color: var(--primary);" id="dbNodePosicion" onclick="switchDbTableDetail('posicion')">
+                                    <i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i>
+                                    fact_posicion_cartera
+                                    <span class="location-badge">Hechos: Saldos y Margen</span>
+                                </div>
+
+                                <!-- Dimensión Ejecutivos (Abajo Izquierda) -->
+                                <div class="node-box dev-node" style="left: 30px; top: 250px; width: 140px; cursor: pointer;" id="dbNodeEjecutivos" onclick="switchDbTableDetail('ejecutivos')">
+                                    <i class="fa-solid fa-user-tie" style="color: #c084fc;"></i>
+                                    dim_ejecutivos
+                                    <span class="location-badge">Estructura Comercial</span>
+                                </div>
+
+                                <!-- Dimensión Cuentas (Abajo Derecha) -->
+                                <div class="node-box db-node" style="left: 310px; top: 250px; width: 140px; cursor: pointer;" id="dbNodeCuentas" onclick="switchDbTableDetail('cuentas')">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                    dim_cuentas
+                                    <span class="location-badge">Dimensión de Cuentas</span>
+                                </div>
+
+                                <!-- Tabla de Hechos: Transacciones (Abajo Centro) -->
+                                <div class="node-box redis-node" style="left: 175px; top: 280px; width: 170px; cursor: pointer;" id="dbNodeTransacciones" onclick="switchDbTableDetail('transacciones')">
+                                    <i class="fa-solid fa-money-bill-transfer"></i>
+                                    fact_transacciones
+                                    <span class="location-badge">Hechos: Movimientos</span>
+                                </div>
+                            </div>
+
+                            <!-- Columna Derecha: Explicación de la Tabla Seleccionada -->
+                            <div class="glass-card" style="border: 1px solid rgba(59, 130, 246, 0.15); display: flex; flex-direction: column; justify-content: space-between; padding: 22px; border-radius: 14px; background: rgba(15, 23, 42, 0.45); height: 100%;">
+                                <div id="dbTableDetailContent" style="opacity: 1; transition: opacity 0.25s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                                        <span class="badge" id="dbTableBadge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.2); align-self: flex-start; text-transform: uppercase; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">Tabla de Hechos</span>
+                                        <h3 id="dbTableTitle" style="color: #fff; font-size: 17px; margin: 0; font-weight: 700;">fact_posicion_cartera</h3>
+                                        <p id="dbTableDescription" style="font-size: 12px; line-height: 1.5; color: var(--text-body); margin: 0;">
+                                            Registra el saldo al corte y las métricas financieras calculadas para cada cuenta activa. Hace de nexo entre clientes, productos y ejecutivos, permitiendo consultas agregadas inmediatas.
+                                        </p>
+                                    </div>
+
+                                    <!-- Estructura de Campos (DDL o columnas principales) -->
+                                    <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 5px;">
+                                        <div style="font-size: 10px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 4px; display: flex; justify-content: space-between;">
+                                            <span>Columna</span>
+                                            <span>Tipo de Dato</span>
+                                        </div>
+                                        <div id="dbTableFields" style="display: flex; flex-direction: column; gap: 4px; font-family: monospace; font-size: 10.5px; color: var(--text-highlight); overflow-y: auto; max-height: 100px;">
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span>cuenta_id (PK/FK)</span>
+                                                <span style="color: #64748b;">INT</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span>cliente_id (FK)</span>
+                                                <span style="color: #64748b;">INT</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span>ejecutivo_id (FK)</span>
+                                                <span style="color: #64748b;">INT</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span>saldo</span>
+                                                <span style="color: #64748b;">DECIMAL(15,2)</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span>costo_fondeo</span>
+                                                <span style="color: #64748b;">DECIMAL(10,6)</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span>margen</span>
+                                                <span style="color: #64748b;">DECIMAL(10,6)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Razón de Diseño / Análisis -->
+                                    <div style="border-left: 2px solid var(--primary); padding-left: 10px; margin-top: 10px;" id="dbTableDesignReasonContainer">
+                                        <span style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px;">Razón de Diseño Analítico</span>
+                                        <span id="dbTableDesignReason" style="font-size: 11px; color: #f8fafc; line-height: 1.4; display: block;">
+                                            Congela las tasas históricas (`costo_fondeo`, `margen`, `cat`) calculadas al momento del corte para evitar que cambios retroactivos en el catálogo de productos alteren los estados financieros del pasado.
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1922,6 +2040,8 @@
 
             window.addEventListener('hashchange', handleHash);
             handleHash();
+            // Inicialización de la diapositiva de Base de Datos
+            switchDbTableDetail('posicion');
         });
 
         // 9. SIMULADOR DE FLUJO DE ARQUITECTURA UNIFICADO (SLIDE 3) - ANIMACIÓN BASADA EN RUTA SVG
@@ -2524,6 +2644,155 @@
 
                 detailContainer.style.opacity = '1';
             }, 250);
+        }
+
+        // CONTROL DE DETALLE DE BASE DE DATOS (DIAPOSITIVA 7)
+        function switchDbTableDetail(table) {
+            const dbNodeClientes = document.getElementById('dbNodeClientes');
+            const dbNodeProductos = document.getElementById('dbNodeProductos');
+            const dbNodeEjecutivos = document.getElementById('dbNodeEjecutivos');
+            const dbNodeCuentas = document.getElementById('dbNodeCuentas');
+            const dbNodePosicion = document.getElementById('dbNodePosicion');
+            const dbNodeTransacciones = document.getElementById('dbNodeTransacciones');
+            const detailContainer = document.getElementById('dbTableDetailContent');
+
+            // Quitar glow de todos
+            [dbNodeClientes, dbNodeProductos, dbNodeEjecutivos, dbNodeCuentas, dbNodePosicion, dbNodeTransacciones].forEach(n => {
+                if (n) n.classList.remove('glow');
+            });
+
+            let activeColor = 'var(--primary)';
+            let nodeTarget = null;
+            let badgeText = '';
+            let title = '';
+            let description = '';
+            let fields = [];
+            let reason = '';
+
+            if (table === 'clientes') {
+                nodeTarget = dbNodeClientes;
+                activeColor = 'var(--success)';
+                badgeText = 'Dimensión';
+                title = 'dim_clientes';
+                description = 'Almacena la información de perfilado y segmentación descriptiva de los clientes de la financiera.';
+                fields = [
+                    { name: 'cliente_id (PK)', type: 'INT' },
+                    { name: 'nombre', type: 'VARCHAR(255)' },
+                    { name: 'tipo_persona', type: 'VARCHAR(50)' },
+                    { name: 'rfc', type: 'VARCHAR(50)' },
+                    { name: 'segmento', type: 'VARCHAR(50)' },
+                    { name: 'ciudad', type: 'VARCHAR(100)' }
+                ];
+                reason = 'Desacopla los atributos demográficos de los clientes para permitir segmentación en reportes (Persona Física vs. Moral) sin sobrecargar las consultas transaccionales.';
+            } else if (table === 'productos') {
+                nodeTarget = dbNodeProductos;
+                activeColor = 'var(--warning)';
+                badgeText = 'Dimensión';
+                title = 'dim_productos';
+                description = 'Catálogo de productos de crédito y captación disponibles, con sus tasas y costos base.';
+                fields = [
+                    { name: 'producto_id (PK)', type: 'INT' },
+                    { name: 'nombre_producto', type: 'VARCHAR(255)' },
+                    { name: 'tipo_producto', type: 'VARCHAR(50)' },
+                    { name: 'tasa_anual', type: 'DECIMAL(10,6)' },
+                    { name: 'costo_fondeo', type: 'DECIMAL(10,6)' },
+                    { name: 'margen', type: 'DECIMAL(10,6)' }
+                ];
+                reason = 'Contiene los atributos de negocio fijos por tipo de producto. Actúa como el maestro de tasas de referencia de la financiera.';
+            } else if (table === 'ejecutivos') {
+                nodeTarget = dbNodeEjecutivos;
+                activeColor = '#a855f7';
+                badgeText = 'Dimensión';
+                title = 'dim_ejecutivos';
+                description = 'Describe la estructura comercial jerárquica de los ejecutivos asignados a las carteras.';
+                fields = [
+                    { name: 'ejecutivo_id (PK)', type: 'INT' },
+                    { name: 'nombre_ejecutivo', type: 'VARCHAR(255)' },
+                    { name: 'sucursal_nombre', type: 'VARCHAR(255)' },
+                    { name: 'zona', type: 'VARCHAR(100)' },
+                    { name: 'region', type: 'VARCHAR(100)' }
+                ];
+                reason = 'Soporta el agrupamiento geográfico (Zona, Región, Sucursal) permitiendo evaluar el desempeño comercial de forma jerárquica e inmediata.';
+            } else if (table === 'cuentas') {
+                nodeTarget = dbNodeCuentas;
+                activeColor = 'var(--secondary)';
+                badgeText = 'Dimensión';
+                title = 'dim_cuentas';
+                description = 'Representa los contratos de cuentas abiertas por los clientes asociándolos a un producto específico.';
+                fields = [
+                    { name: 'cuenta_id (PK)', type: 'INT' },
+                    { name: 'cliente_id (FK)', type: 'INT' },
+                    { name: 'producto_id (FK)', type: 'INT' },
+                    { name: 'numero_cuenta', type: 'VARCHAR(50)' },
+                    { name: 'estatus', type: 'VARCHAR(50)' }
+                ];
+                reason = 'Estructura la relación de pertenencia de cuentas a clientes. Las restricciones `ON DELETE CASCADE` garantizan la limpieza automática de registros huérfanos.';
+            } else if (table === 'posicion') {
+                nodeTarget = dbNodePosicion;
+                activeColor = 'var(--primary)';
+                badgeText = 'Tabla de Hechos';
+                title = 'fact_posicion_cartera';
+                description = 'Registra los saldos e indicadores financieros agregados a la fecha de corte por cada cuenta activa.';
+                fields = [
+                    { name: 'cuenta_id (PK/FK)', type: 'INT' },
+                    { name: 'cliente_id (FK)', type: 'INT' },
+                    { name: 'ejecutivo_id (FK)', type: 'INT' },
+                    { name: 'saldo', type: 'DECIMAL(15,2)' },
+                    { name: 'costo_fondeo', type: 'DECIMAL(10,6)' },
+                    { name: 'margen', type: 'DECIMAL(10,6)' }
+                ];
+                reason = 'Congela las tasas históricas (`costo_fondeo`, `margen`, `cat`) calculadas al momento del corte para evitar que cambios retroactivos en el catálogo alteren los estados financieros del pasado.';
+            } else if (table === 'transacciones') {
+                nodeTarget = dbNodeTransacciones;
+                activeColor = 'var(--danger)';
+                badgeText = 'Tabla de Hechos';
+                title = 'fact_transacciones';
+                description = 'Historial detallado de todas las transacciones monetarias y movimientos de las cuentas.';
+                fields = [
+                    { name: 'transaccion_id (PK)', type: 'INT' },
+                    { name: 'cuenta_id (FK)', type: 'INT' },
+                    { name: 'monto', type: 'DECIMAL(15,2)' },
+                    { name: 'fecha_transaccion', type: 'DATETIME' },
+                    { name: 'tipo_movimiento', type: 'VARCHAR(50)' },
+                    { name: 'canal', type: 'VARCHAR(50)' }
+                ];
+                reason = 'Almacena eventos de alta granularidad. Su diseño permite auditar el volumen, tipo de canal y flujo de dinero en el tiempo de manera independiente.';
+            }
+
+            // Aplicar glow al nodo seleccionado
+            if (nodeTarget) nodeTarget.classList.add('glow');
+
+            // Actualizar contenido dinámico con animación
+            detailContainer.style.opacity = '0';
+            setTimeout(() => {
+                const badge = document.getElementById('dbTableBadge');
+                const titleEl = document.getElementById('dbTableTitle');
+                const descEl = document.getElementById('dbTableDescription');
+                const fieldsEl = document.getElementById('dbTableFields');
+                const reasonEl = document.getElementById('dbTableDesignReason');
+                const reasonContainer = document.getElementById('dbTableDesignReasonContainer');
+
+                badge.textContent = badgeText;
+                badge.style.color = activeColor;
+                badge.style.borderColor = `rgba(${activeColor === 'var(--primary)' ? '59,130,246' : activeColor === 'var(--success)' ? '16,185,129' : activeColor === 'var(--warning)' ? '245,158,11' : activeColor === 'var(--secondary)' ? '6,182,212' : activeColor === 'var(--danger)' ? '239,68,68' : '168,85,247'}, 0.25)`;
+                badge.style.background = `rgba(${activeColor === 'var(--primary)' ? '59,130,246' : activeColor === 'var(--success)' ? '16,185,129' : activeColor === 'var(--warning)' ? '245,158,11' : activeColor === 'var(--secondary)' ? '6,182,212' : activeColor === 'var(--danger)' ? '239,68,68' : '168,85,247'}, 0.15)`;
+
+                titleEl.textContent = title;
+                descEl.innerHTML = description;
+
+                // Cargar campos
+                fieldsEl.innerHTML = fields.map(f => `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>${f.name}</span>
+                        <span style="color: #64748b;">${f.type}</span>
+                    </div>
+                `).join('');
+
+                reasonEl.textContent = reason;
+                reasonContainer.style.borderLeftColor = activeColor;
+
+                detailContainer.style.opacity = '1';
+            }, 200);
         }
     </script>
 </body>

@@ -1,4 +1,5 @@
 const db = require('../../core/config/database');
+const cache = require('../../core/services/cache.service');
 
 class DesempenoService {
 
@@ -6,6 +7,12 @@ class DesempenoService {
    * Desempeño de ejecutivos: cuentas y saldos gestionados (cartera).
    */
   async getDesempenioEjecutivos() {
+    const cacheKey = 'desempeno:ejecutivos:global';
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const sql = `
       SELECT 
         de.ejecutivo_id,
@@ -22,7 +29,9 @@ class DesempenoService {
       GROUP BY de.ejecutivo_id, de.nombre_ejecutivo, de.zona, de.region, de.sucursal_nombre
       ORDER BY saldo_absoluto_gestionado DESC;
     `;
-    return await db.query(sql);
+    const result = await db.query(sql);
+    await cache.set(cacheKey, result, 300); // Cachear por 5 minutos
+    return result;
   }
 
   /**
@@ -30,6 +39,12 @@ class DesempenoService {
    * Usado para: tabla ranking + gráfico barras top ejecutivos.
    */
   async getRankingEjecutivos({ zona, region, canal, top, ejecutivo_id } = {}) {
+    const cacheKey = `desempeno:ranking:${zona || 'all'}:${region || 'all'}:${canal || 'all'}:${top || '20'}:${ejecutivo_id || 'all'}`;
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const whereClauses = [];
     const params = [];
 
@@ -63,6 +78,7 @@ class DesempenoService {
       ${limitStr};
     `;
     const [rows] = await db.pool.query(sql, params);
+    await cache.set(cacheKey, rows, 120); // Cachear por 2 minutos
     return rows;
   }
 
@@ -71,6 +87,12 @@ class DesempenoService {
    * Usado para: gráfico dona / barras agrupadas por zona.
    */
   async getTransaccionesPorZona({ zona, canal, region, ejecutivo_id } = {}) {
+    const cacheKey = `desempeno:por-zona:${zona || 'all'}:${canal || 'all'}:${region || 'all'}:${ejecutivo_id || 'all'}`;
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const whereClauses = [];
     const params = [];
 
@@ -96,6 +118,7 @@ class DesempenoService {
       ORDER BY cantidad_transacciones DESC;
     `;
     const [rows] = await db.pool.query(sql, params);
+    await cache.set(cacheKey, rows, 120); // Cachear por 2 minutos
     return rows;
   }
 
@@ -104,6 +127,12 @@ class DesempenoService {
    * Usado para: gráfico de líneas (tendencia temporal).
    */
   async getEvolucionMensual({ zona, region, canal, ejecutivo_id } = {}) {
+    const cacheKey = `desempeno:evolucion:${zona || 'all'}:${region || 'all'}:${canal || 'all'}:${ejecutivo_id || 'all'}`;
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const whereClauses = [];
     const params = [];
 
@@ -128,6 +157,7 @@ class DesempenoService {
       ORDER BY periodo ASC, cantidad_transacciones DESC;
     `;
     const [rows] = await db.pool.query(sql, params);
+    await cache.set(cacheKey, rows, 120); // Cachear por 2 minutos
     return rows;
   }
 
@@ -136,6 +166,12 @@ class DesempenoService {
    * Usado para: gráfico dona de canales.
    */
   async getDistribucionCanal({ zona, region, ejecutivo_id } = {}) {
+    const cacheKey = `desempeno:canales:${zona || 'all'}:${region || 'all'}:${ejecutivo_id || 'all'}`;
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const whereClauses = [];
     const params = [];
 
@@ -160,6 +196,7 @@ class DesempenoService {
       ORDER BY cantidad_transacciones DESC;
     `;
     const [rows] = await db.pool.query(sql, params);
+    await cache.set(cacheKey, rows, 120); // Cachear por 2 minutos
     return rows;
   }
 
@@ -167,6 +204,12 @@ class DesempenoService {
    * KPIs resumen del módulo de desempeño.
    */
   async getKpisDesempeno({ zona, region, canal, ejecutivo_id } = {}) {
+    const cacheKey = `desempeno:kpis:${zona || 'all'}:${region || 'all'}:${canal || 'all'}:${ejecutivo_id || 'all'}`;
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const whereClauses = [];
     const params = [];
 
@@ -190,19 +233,27 @@ class DesempenoService {
       ${whereStr};
     `;
     const [row] = await db.pool.query(sql, params);
-    return row[0] || {};
+    const result = row[0] || {};
+    await cache.set(cacheKey, result, 120); // Cachear por 2 minutos
+    return result;
   }
 
   /**
    * Catálogos de filtros disponibles (zonas, regiones, canales).
    */
   async getCatalogos() {
+    const cacheKey = 'desempeno:catalogos';
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const [zonas]    = await db.pool.query('SELECT DISTINCT zona FROM dim_ejecutivos WHERE zona IS NOT NULL ORDER BY zona');
     const [regiones] = await db.pool.query('SELECT DISTINCT region FROM dim_ejecutivos WHERE region IS NOT NULL ORDER BY region');
     const [canales]  = await db.pool.query('SELECT DISTINCT canal FROM fact_transacciones WHERE canal IS NOT NULL ORDER BY canal');
     const [ejecutivos] = await db.pool.query('SELECT ejecutivo_id, nombre_ejecutivo FROM dim_ejecutivos WHERE nombre_ejecutivo IS NOT NULL ORDER BY nombre_ejecutivo');
 
-    return {
+    const result = {
       zonas:    zonas.map(r => r.zona),
       regiones: regiones.map(r => r.region),
       canales:  canales.map(r => r.canal),
@@ -211,6 +262,9 @@ class DesempenoService {
         nombre: e.nombre_ejecutivo
       }))
     };
+
+    await cache.set(cacheKey, result, 600); // Cachear por 10 minutos
+    return result;
   }
 
   /**

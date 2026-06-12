@@ -7,6 +7,12 @@ class TransaccionesService {
    * Actividad transaccional simple: agrupada por periodo, canal y tipo de movimiento.
    */
   async getActividadTransaccional() {
+    const cacheKey = 'transacciones:actividad:global';
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const sql = `
       SELECT 
         DATE_FORMAT(ft.fecha_transaccion, '%Y-%m') AS periodo,
@@ -18,7 +24,9 @@ class TransaccionesService {
       GROUP BY periodo, ft.canal, ft.tipo_movimiento
       ORDER BY periodo DESC, cantidad_transacciones DESC;
     `;
-    return await db.query(sql);
+    const result = await db.query(sql);
+    await cache.set(cacheKey, result, 300); // Cachear por 5 minutos
+    return result;
   }
 
   /**
